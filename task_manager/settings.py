@@ -80,11 +80,11 @@ WSGI_APPLICATION = 'task_manager.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgresql_rkxi',
-        'USER': 'postgresql_rkxi_user',
-        'PASSWORD': 'poFS9mqTMJbTaR8sfB9aM0wwYIoTw6ue',
-        'HOST': 'dpg-crhit2ij1k6c73fimuu0-a.oregon-postgres.render.com',
-        'PORT': '5432'
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT')
     }
 }
 
