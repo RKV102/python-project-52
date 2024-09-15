@@ -16,6 +16,7 @@ dj-database-url = "^2.2.0"
 gunicorn = "^23.0.0"
 python-dotenv = "^1.0.1"
 psycopg2 = "^2.9.9"
+django-bootstrap5 = "^24.2"
 
 
 [tool.poetry.group.dev.dependencies]
