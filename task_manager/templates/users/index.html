@@ -17,9 +17,9 @@
                 {% for user in users %}
                     <tr>
                         <td>{{ user.id }}</td>
-                        <td>{{ user.short_name }}</td>
-                        <td>{{ user.full_name }}</td>
-                        <td>{{ user.created_at }}</td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.name }} {{ user.family }}</td>
+                        <td>{{ user.created_at|date:'d.m.Y H:i' }}</td>
                         <td>
                           <a href="#">Изменить</a>
                           <br>

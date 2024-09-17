@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, redirect
 from django.views import View
 from .models import User
 from .forms import CreateUserForm
@@ -24,4 +24,12 @@ class CreateUserView(View):
         )
 
     def post(self, request, *args, **kwargs):
-        return HttpResponse('Success')
+        form = CreateUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('users')
+        return render(
+            request,
+            'users/create.html',
+            {'form': form}
+        )
