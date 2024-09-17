@@ -3,10 +3,11 @@ from .models import User
 
 
 class CreateUserForm(forms.ModelForm):
-    short_name = forms.CharField(label='Имя')
-    full_name = forms.CharField(label='Полное имя')
+    name = forms.CharField(label='Имя')
+    family = forms.CharField(label='Фамилия')
+    username = forms.CharField(label='Имя пользователя')
     password = forms.CharField(widget=forms.PasswordInput, label='Пароль')
 
     class Meta:
         model = User
-        fields = ['short_name', 'full_name', 'password']
+        fields = ['name', 'family', 'username', 'password']
