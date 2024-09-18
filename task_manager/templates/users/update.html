@@ -4,9 +4,12 @@
 {% bootstrap_javascript %}
 
 {% block content %}
-    <form action="{% url 'users_update' id=user_id %}" method="post">
-        {% csrf_token %}
-        {% bootstrap_form form %}
-        {% bootstrap_button button_type="submit" content="Сохранить" %}
-    </form>
+    <div class="container wrapper flex-grow-1">
+        <h1 class="my-4">Изменение пользователя</h1>
+        <form action="{% url 'users_update' id=user_id %}" method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            {% bootstrap_button button_type="submit" content="Сохранить" %}
+        </form>
+    </div>
 {% endblock %}

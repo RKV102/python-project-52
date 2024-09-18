@@ -21,9 +21,9 @@
                         <td>{{ user.name }} {{ user.family }}</td>
                         <td>{{ user.created_at|date:'d.m.Y H:i' }}</td>
                         <td>
-                          <a href="{% url 'users_update' user.id %}">Изменить</a>
+                          <a href="{% url 'users_update' id=user.id %}">Изменить</a>
                           <br>
-                          <a href="#">Удалить</a>
+                          <a href="{% url 'users_delete' id=user.id %}">Удалить</a>
                         </td>
                     </tr>
                 {% endfor %}
