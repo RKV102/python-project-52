@@ -36,6 +36,9 @@
             </ul>
         </div>
     </nav>
-    {% block content %}{% endblock %}
+    <div class="container wrapper flex-grow-1">
+        {% include "messages.html" %}
+        {% block content %}{% endblock %}
+    </div>
 </body>
 </html>

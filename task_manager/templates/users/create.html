@@ -4,6 +4,7 @@
 {% bootstrap_javascript %}
 
 {% block content %}
+    <h1 class="my-4">Регистрация</h1>
     <form action="{% url 'users_create' %}" method="post">
         {% csrf_token %}
         {% bootstrap_form form %}
