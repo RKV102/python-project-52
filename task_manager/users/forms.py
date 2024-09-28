@@ -1,25 +1,33 @@
 from django.contrib.auth.models import User
+from django import forms
 from django.contrib.auth.forms import (UserCreationForm
                                        as DjangoUserCreationForm,
                                        UserChangeForm
                                        as DjangoUserChangeForm,
-                                       SetPasswordMixin)
+                                       SetPasswordMixin,
+                                       UsernameField)
 
 
-class UserCreationForm(DjangoUserCreationForm):
+class UserMixin(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username')
+        fields = ('username', 'first_name', 'last_name')
+        field_classes = {"username": UsernameField}
 
 
-class UserChangeForm(SetPasswordMixin, DjangoUserChangeForm):
+class UserCreationForm(UserMixin, DjangoUserCreationForm):
+    pass
+
+
+class UserChangeForm(UserMixin, SetPasswordMixin, DjangoUserChangeForm):
     password1, password2 = SetPasswordMixin.create_password_fields()
     password = None
-
-    class Meta:
-        model = User
-        fields = ('first_name', 'last_name', 'username')
 
     def clean(self):
         self.validate_passwords()
@@ -27,8 +35,6 @@ class UserChangeForm(SetPasswordMixin, DjangoUserChangeForm):
 
     def _post_clean(self):
         super()._post_clean()
-        # Validate the password after self.instance is updated with form data
-        # by super().
         self.validate_password_for_user(self.instance)
 
     def save(self, commit=True):

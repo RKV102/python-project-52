@@ -5,6 +5,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserCreationForm, UserChangeForm
+from django.utils.translation import gettext as _
 
 
 class IndexView(View):
@@ -19,10 +20,11 @@ class IndexView(View):
 
 
 class CreateUserView(SuccessMessageMixin, CreateView):
+    model = User
     form_class = UserCreationForm
     template_name = 'users/create.html'
     success_url = reverse_lazy('users')
-    success_message = 'Регистрация прошла успешно'
+    success_message = _('Registration was successful')
 
 
 class UpdateUserView(SuccessMessageMixin, UpdateView):
@@ -30,11 +32,11 @@ class UpdateUserView(SuccessMessageMixin, UpdateView):
     form_class = UserChangeForm
     template_name = 'users/update.html'
     success_url = reverse_lazy('users')
-    success_message = 'Данные пользователя были обновлены'
+    success_message = _('The data has been updated')
 
 
 class DeleteUserView(SuccessMessageMixin, DeleteView):
     model = User
     template_name = 'users/delete.html'
     success_url = reverse_lazy('users')
-    success_message = 'Пользователь был удалён'
+    success_message = _('The user has been deleted')
