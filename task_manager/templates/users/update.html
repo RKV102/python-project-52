@@ -4,7 +4,7 @@
 {% bootstrap_javascript %}
 
 {% block content %}
-    <h1 class="my-4">Изменение пользователя</h1>
+    <h1 class="my-4">Редактирование пользователя</h1>
     <form action="{% url 'users_update' pk=user.id %}" method="post">
         {% csrf_token %}
         {% bootstrap_form form %}

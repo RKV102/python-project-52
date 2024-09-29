@@ -32,11 +32,11 @@ class UpdateUserView(SuccessMessageMixin, UpdateView):
     form_class = UserChangeForm
     template_name = 'users/update.html'
     success_url = reverse_lazy('users')
-    success_message = _('The data has been updated')
+    success_message = _('User has been updated')
 
 
 class DeleteUserView(SuccessMessageMixin, DeleteView):
     model = User
     template_name = 'users/delete.html'
     success_url = reverse_lazy('users')
-    success_message = _('The user has been deleted')
+    success_message = _('User has been deleted')
