@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 {% load django_bootstrap5 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
+{% load i18n %}
 
 {% block content %}
-    <h1 class="my-4">Редактирование пользователя</h1>
+    <h1 class="my-4">{% translate "Editing user" %}</h1>
     <form action="{% url 'users_update' pk=user.id %}" method="post">
         {% csrf_token %}
         {% bootstrap_form form %}
-        {% bootstrap_button button_type="submit" content="Изменить" %}
+        {% translate "Save" as update_button %}
+        {% bootstrap_button button_type="submit" content=update_button %}
     </form>
 {% endblock %}

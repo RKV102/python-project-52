@@ -1,16 +1,15 @@
 {% extends "layout.html" %}
 {% load django_bootstrap5 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
+{% load i18n %}
 
 {% block content %}
-
     <div class="container wrapper flex-grow-1">
-        <h1 class="my-4">Вход</h1>
+        <h1 class="my-4">{% translate "Sign in" %}</h1>
         <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
             {% bootstrap_form form %}
-            {% bootstrap_button button_type="submit" content="Войти" %}
+            {% translate "Sign in now" as login_button %}
+            {% bootstrap_button button_type="submit" content=login_button %}
             <input type="hidden" name="next" value="{{ next }}">
         </form>
     </div>
