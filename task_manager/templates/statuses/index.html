@@ -4,14 +4,14 @@
 
 {% block content %}
     <h1 class="my-4">{% translate "Statuses" %}</h1>
-    <a class="btn btn-primary mb-3" href="{% url 'statuses_create' %}">{% translate "Add" %}</a>
+    <a class="btn btn-primary mb-3" href="{% url 'statuses_create' %}">{% translate "Create Status" %}</a>
     <table class="table table-striped">
         <thead>
             <tr>
-              <th>ID</th>
-              <th>{% translate "Name" %}</th>
-              <th>{% translate "Created at" %}</th>
-              <th></th>
+                <th>ID</th>
+                <th>{% translate "Name" %}</th>
+                <th>{% translate "Created at" %}</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -21,9 +21,9 @@
                     <td>{{ status.name }}</td>
                     <td>{{ status.created_at|date:'d.m.Y H:i' }}</td>
                     <td>
-                      <a href="{% url 'statuses_update' pk=status.id %}">{% translate "Edit" %}</a>
-                      <br>
-                      <a href="{% url 'statuses_delete' pk=status.id %}">{% translate "Delete" %}</a>
+                        <a href="{% url 'statuses_update' pk=status.id %}">{% translate "Edit" %}</a>
+                        <br>
+                        <a href="{% url 'statuses_delete' pk=status.id %}">{% translate "Delete" %}</a>
                     </td>
                 </tr>
             {% endfor %}

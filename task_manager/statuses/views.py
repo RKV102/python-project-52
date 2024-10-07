@@ -5,12 +5,13 @@ from .models import Status
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import gettext as _
+from task_manager.mixins import LoginRequiredMixin
 
 
 STATUSES_URL = reverse_lazy('statuses')
 
 
-class IndexView(View):
+class IndexView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         statuses = Status.objects.all()
@@ -21,7 +22,7 @@ class IndexView(View):
         )
 
 
-class CreateStatusView(SuccessMessageMixin, CreateView):
+class CreateStatusView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Status
     fields = ('name',)
     template_name = 'statuses/create.html'
@@ -29,7 +30,7 @@ class CreateStatusView(SuccessMessageMixin, CreateView):
     success_message = _('Creation was successful')
 
 
-class UpdateStatusView(SuccessMessageMixin, UpdateView):
+class UpdateStatusView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Status
     fields = ('name',)
     template_name = 'statuses/update.html'
@@ -37,7 +38,7 @@ class UpdateStatusView(SuccessMessageMixin, UpdateView):
     success_message = _('Status has been updated')
 
 
-class DeleteUserView(SuccessMessageMixin, DeleteView):
+class DeleteUserView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Status
     template_name = 'statuses/delete.html'
     success_url = STATUSES_URL

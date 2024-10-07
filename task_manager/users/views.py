@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserCreationForm, UserChangeForm
 from django.utils.translation import gettext as _
-from ..mixins.views import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 USERS_URL = reverse_lazy('users')
