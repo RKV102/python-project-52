@@ -1,14 +1,37 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic.edit import UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import AccessMixin
 from django.utils.translation import gettext as _
 from .models import Task
 from .forms import TaskChangeForm, TaskCreationForm
 from django.contrib.auth.models import User
 from django.contrib import messages
-from task_manager.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from task_manager.mixins import LoginRequiredMixin
+
+
+class PermissionRequiredMixin(AccessMixin):
+    message_text = _('Only the author of the task can delete it')
+
+    def dispatch(self, request, *args, **kwargs):
+        current_user_id = request.session.get('_auth_user_id')
+        current_task_id = kwargs['pk']
+        target_user_id = str(
+            get_object_or_404(
+                self.model,
+                id=current_task_id
+            ).creator.id
+        )
+        if current_user_id != target_user_id:
+            messages.error(
+                request,
+                self.message_text,
+                extra_tags='danger'
+            )
+            return redirect('tasks')
+        return super().dispatch(request, *args, **kwargs)
 
 
 class IndexView(LoginRequiredMixin, View):
@@ -56,4 +79,4 @@ class DeleteTaskView(LoginRequiredMixin, PermissionRequiredMixin,
     model = Task
     template_name = 'tasks/delete.html'
     success_url = reverse_lazy('tasks')
-    success_message = _('User has been deleted')
+    success_message = _('Task has been deleted')
