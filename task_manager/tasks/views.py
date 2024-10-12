@@ -6,14 +6,14 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import AccessMixin
 from django.utils.translation import gettext as _
 from .models import Task
-from .forms import TaskChangeForm, TaskCreationForm
+from .forms import TaskForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 from task_manager.mixins import LoginRequiredMixin
 
 
-class PermissionRequiredMixin(AccessMixin):
-    message_text = _('Only the author of the task can delete it')
+class CreatorCheckMixin(AccessMixin):
+    message_text = _('Only the creator of the task can delete it')
 
     def dispatch(self, request, *args, **kwargs):
         current_user_id = request.session.get('_auth_user_id')
@@ -51,13 +51,13 @@ class CreateTaskView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         current_user_id = request.session.get('_auth_user_id')
         creator = User.objects.get(id=current_user_id)
-        form = TaskCreationForm(
+        form = TaskForm(
             initial={'creator': creator}
         )
         return render(request, self.template_name, {'form': form})
 
     def post(self, request, *args, **kwargs):
-        form = TaskCreationForm(request.POST)
+        form = TaskForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, _('Creation was successful'))
@@ -67,13 +67,13 @@ class CreateTaskView(LoginRequiredMixin, View):
 
 class UpdateTaskView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Task
-    form_class = TaskChangeForm
+    form_class = TaskForm
     template_name = 'tasks/update.html'
     success_url = reverse_lazy('tasks')
     success_message = _('Task has been updated')
 
 
-class DeleteTaskView(LoginRequiredMixin, PermissionRequiredMixin,
+class DeleteTaskView(LoginRequiredMixin, CreatorCheckMixin,
                      SuccessMessageMixin, DeleteView):
     permission_required = None
     model = Task

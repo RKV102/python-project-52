@@ -2,7 +2,7 @@ from django import forms
 from task_manager.tasks.models import Task
 
 
-class TaskMixin(forms.ModelForm):
+class TaskForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -10,12 +10,5 @@ class TaskMixin(forms.ModelForm):
 
     class Meta:
         model = Task
-        fields = ('name', 'description', 'status', 'performer', 'creator')
-
-
-class TaskCreationForm(TaskMixin, forms.ModelForm):
-    pass
-
-
-class TaskChangeForm(TaskMixin, forms.ModelForm):
-    pass
+        fields = ('name', 'description', 'status', 'performer', 'creator',
+                  'labels')
