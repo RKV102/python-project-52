@@ -56,8 +56,8 @@ class UpdateStatusView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     success_message = _('Status has been updated')
 
 
-class DeleteUserView(LoginRequiredMixin, UsageCheckMixin,
-                     SuccessMessageMixin, DeleteView):
+class DeleteStatusView(LoginRequiredMixin, UsageCheckMixin,
+                       SuccessMessageMixin, DeleteView):
     model = Status
     template_name = 'statuses/delete.html'
     success_url = STATUSES_URL
