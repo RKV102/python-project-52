@@ -1,9 +1,25 @@
 {% extends "layout.html" %}
 {% load i18n %}
+{% load django_bootstrap5 %}
+{% load task_tags %}
 
 {% block content %}
     <h1 class="my-4">{% translate "Tasks" %}</h1>
     <a class="btn btn-primary mb-3" href="{% url 'tasks_create' %}">{% translate "Create task" %}</a>
+    <div class="card mb-3">
+        <div class="card-body bg-light">
+            <form class="form-inline center" method="get">
+                {% for field in filter.form %}
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {% task_filter_field field %}
+                    </div>
+                {% endfor %}
+                {% translate "Show" as filter_button %}
+                {% bootstrap_button button_type="submit" content=filter_button %}
+            </form>
+        </div>
+    </div>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -17,13 +33,13 @@
             </tr>
         </thead>
         <tbody>
-            {% for task in tasks %}
+            {% for task in filter.qs %}
                 <tr>
                     <td>{{ task.id }}</td>
                     <td>{{ task.name }}</td>
                     <td>{{ task.status }}</td>
                     <td>{{ task.creator }}</td>
-                    <td>{% if task.performer %}{{ task.performer }}{% else %}{% endif %}</td>
+                    <td>{{ task.performer|default:"" }}</td>
                     <td>{{ task.created_at|date:'d.m.Y H:i' }}</td>
                     <td>
                         <a href="{% url 'tasks_update' pk=task.id %}">{% translate "Edit" %}</a>

@@ -10,6 +10,7 @@ from .forms import TaskForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 from task_manager.mixins import LoginRequiredMixin
+from .filters import TaskFilter
 
 
 class CreatorCheckMixin(AccessMixin):
@@ -38,10 +39,11 @@ class IndexView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         tasks = Task.objects.all()
+        filter = TaskFilter(request.GET, queryset=tasks)
         return render(
             request,
             'tasks/index.html',
-            context={'tasks': tasks}
+            context={'tasks': tasks, 'filter': filter}
         )
 
 
