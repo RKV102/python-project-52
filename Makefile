@@ -4,6 +4,14 @@ install:
 dev:
 	poetry run python manage.py runserver
 
+configure:
+	poetry config virtualenvs.in-project true
 
-start:
-	poetry run gunicorn task_manager.wsgi
+lint:
+	poetry run flake8
+
+test:
+	poetry run coverage run -m pytest
+
+cover:
+	poetry run coverage lcov
