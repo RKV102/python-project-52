@@ -1,64 +1,48 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views import View
-from django.urls import reverse_lazy
+from django.views.generic import ListView
 from .models import Status
-from django.contrib.auth.mixins import AccessMixin
-from django.contrib import messages
+from .forms import StatusForm
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import gettext as _
-from task_manager.mixins import LoginRequiredMixin
+from task_manager.mixins import (LoginRequiredMixin, BaseUsageCheckMixin,
+                                 BaseSuccessUrlMixin)
 
 
-STATUSES_URL = reverse_lazy('statuses')
+class SuccessUrlMixin(BaseSuccessUrlMixin):
+    redirect_url = 'statuses'
 
 
-class UsageCheckMixin(AccessMixin):
+class ModelMixin:
+    model = Status
+
+
+class FormMixin:
+    form_class = StatusForm
+
+
+class UsageCheckMixin(BaseUsageCheckMixin):
     message_text = _("Status can't be deleted because it's used in the task")
-
-    def dispatch(self, request, *args, **kwargs):
-        status_id = kwargs['pk']
-        status = get_object_or_404(self.model, id=status_id)
-        if status.task_set.all():
-            messages.error(
-                request,
-                self.message_text,
-                extra_tags='danger'
-            )
-            return redirect('statuses')
-        return super().dispatch(request, *args, **kwargs)
+    redirect_url = 'statuses'
 
 
-class IndexView(LoginRequiredMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        statuses = Status.objects.all()
-        return render(
-            request,
-            'statuses/index.html',
-            context={'statuses': statuses}
-        )
+class IndexView(ModelMixin, LoginRequiredMixin, ListView):
+    template_name = 'statuses/index.html'
+    context_object_name = 'statuses'
 
 
-class CreateStatusView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
-    model = Status
-    fields = ('name',)
+class CreateStatusView(FormMixin, ModelMixin, SuccessUrlMixin,
+                       LoginRequiredMixin, SuccessMessageMixin, CreateView):
     template_name = 'statuses/create.html'
-    success_url = STATUSES_URL
-    success_message = _('Creation was successful')
+    success_message = _('Status creation was successful')
 
 
-class UpdateStatusView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
-    model = Status
-    fields = ('name',)
+class UpdateStatusView(FormMixin, ModelMixin, SuccessUrlMixin,
+                       LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     template_name = 'statuses/update.html'
-    success_url = STATUSES_URL
     success_message = _('Status has been updated')
 
 
-class DeleteStatusView(LoginRequiredMixin, UsageCheckMixin,
-                       SuccessMessageMixin, DeleteView):
-    model = Status
+class DeleteStatusView(ModelMixin, SuccessUrlMixin, LoginRequiredMixin,
+                       UsageCheckMixin, SuccessMessageMixin, DeleteView):
     template_name = 'statuses/delete.html'
-    success_url = STATUSES_URL
     success_message = _('Status has been deleted')

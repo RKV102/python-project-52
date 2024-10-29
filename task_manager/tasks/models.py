@@ -20,7 +20,7 @@ class Task(models.Model):
                                   verbose_name=_('Performer'), blank=True,
                                   null=True)
     labels = models.ManyToManyField(Label, verbose_name=_('Labels'),
-                                    blank=True, null=True)
+                                    blank=True)
     updated_at = models.DateTimeField(auto_now=True,
                                       verbose_name=_('Updated at')
                                       )
