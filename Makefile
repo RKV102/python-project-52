@@ -1,5 +1,6 @@
 install:
 	poetry install
+	poetry add psycopg2-binary websockets
 
 dev:
 	poetry run python manage.py runserver
