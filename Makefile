@@ -1,6 +1,5 @@
 install:
 	poetry install
-	poetry add psycopg2-binary websockets
 
 dev:
 	poetry run python manage.py runserver
@@ -12,7 +11,11 @@ lint:
 	poetry run flake8
 
 test:
-	poetry run coverage run -m pytest
+	poetry run coverage run manage.py test
 
 cover:
 	poetry run coverage lcov
+
+migrate:
+	poetry run python manage.py makemigrations && \
+	poetry run python manage.py migrate
