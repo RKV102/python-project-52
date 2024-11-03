@@ -18,9 +18,11 @@ jobs:
         pip install poetry
         make install
         make configure
-    - name: Linting by flake8
+    - name: DB preparation
+      run: make migrate
+    - name: Linting
       run: make lint
-    - name: Testing by pytest
+    - name: Testing
       run: make test
     - name: Checking coverage by Code Climate
       uses: paambaati/codeclimate-action@v5.0.0
