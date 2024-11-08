@@ -1,7 +1,7 @@
 from django.db import models
 from task_manager.statuses.models import Status
 from task_manager.labels.models import Label
-from django.contrib.auth.models import User
+from task_manager.users.models import User
 from django.utils.translation import gettext_lazy as _
 
 
@@ -12,13 +12,13 @@ class Task(models.Model):
                                    null=True)
     status = models.ForeignKey(Status, on_delete=models.RESTRICT,
                                verbose_name=_('Status'))
-    creator = models.ForeignKey(User, on_delete=models.RESTRICT,
+    creator = models.ForeignKey(User, on_delete=models.CASCADE,
                                 related_name='task_creator',
                                 verbose_name=_('Creator'))
-    performer = models.ForeignKey(User, on_delete=models.RESTRICT,
-                                  related_name='task_performer',
-                                  verbose_name=_('Performer'), blank=True,
-                                  null=True)
+    executor = models.ForeignKey(User, on_delete=models.RESTRICT,
+                                 related_name='task_executor',
+                                 verbose_name=_('Performer'), blank=True,
+                                 null=True)
     labels = models.ManyToManyField(Label, verbose_name=_('Labels'),
                                     blank=True)
     updated_at = models.DateTimeField(auto_now=True,

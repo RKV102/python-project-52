@@ -29,13 +29,13 @@ class TaskTestCase(TestCase):
             name='task2',
             creator=creator2,
             status=status2,
-            performer=creator3
+            executor=creator3
         )
         Task.objects.create(
             name='task3',
             creator=creator1,
             status=status1,
-            performer=creator2
+            executor=creator2
         )
 
     def test_task_can_be_created(self):
@@ -58,18 +58,18 @@ class TaskTestCase(TestCase):
         assert len(filtered_tasks) == 2
         assert all([task.status == status for task in filtered_tasks])
 
-    def test_filter_task_by_performer(self):
-        performer = User.objects.get(username='username3')
-        filter = TaskFilter({'performer': performer})
+    def test_filter_task_by_executor(self):
+        executor = User.objects.get(username='username3')
+        filter = TaskFilter({'executor': executor})
         filtered_tasks = filter.qs
         assert len(filtered_tasks) == 1
-        assert filtered_tasks.last().performer == performer
+        assert filtered_tasks.last().executor == executor
 
-    def test_filter_task_by_status_and_performer(self):
+    def test_filter_task_by_status_and_executor(self):
         status = Status.objects.get(name='status1')
-        performer = User.objects.get(username='username2')
-        filter = TaskFilter({'status': status, 'performer': performer})
+        executor = User.objects.get(username='username2')
+        filter = TaskFilter({'status': status, 'executor': executor})
         filtered_tasks = filter.qs
         task = filtered_tasks.last()
         assert len(filtered_tasks) == 1
-        assert task.status == status and task.performer == performer
+        assert task.status == status and task.executor == executor

@@ -3,7 +3,7 @@ from django.views import View
 from django.contrib.auth.views import (LoginView as DjangoLoginView,
                                        LogoutView as DjangoLogoutView)
 from django.contrib.messages.views import SuccessMessageMixin
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
 
 
@@ -14,7 +14,7 @@ class IndexView(View):
 
 
 class LoginView(SuccessMessageMixin, DjangoLoginView):
-    success_message = _('Welcome, %(username)s!')
+    success_message = _('You are logged in')
     template_name = 'registration/login.html'
 
 

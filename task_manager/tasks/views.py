@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
+from django.views.generic import DetailView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.mixins import AccessMixin
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from .models import Task
 from .forms import TaskForm
-from django.contrib.auth.models import User
+from task_manager.users.models import User
 from django.contrib import messages
 from task_manager.mixins import LoginRequiredMixin
 from .filters import TaskFilter
@@ -45,12 +46,24 @@ class IndexView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         tasks = Task.objects.all()
-        filter = TaskFilter(request.GET, queryset=tasks)
+        filter = TaskFilter(request.GET, queryset=tasks, user=request.user)
+        filtered_tasks = filter.qs if filter.is_valid() else tasks
         return render(
             request,
             'tasks/index.html',
-            context={'tasks': tasks, 'filter': filter}
+            context={'tasks': filtered_tasks, 'filter': filter}
         )
+
+
+class ShowTaskView(LoginRequiredMixin, DetailView):
+    model = Task
+    template_name = 'tasks/show.html'
+    context_object_name = 'task'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['labels'] = self.object.labels.all()
+        return context
 
 
 class CreateTaskView(LoginRequiredMixin, View):

@@ -7,7 +7,7 @@
     <p>{% translate "Are you sure you want to delete" %} «{{ user.username }}»?</p>
     <form action="{% url 'users_delete' pk=user.id %}" method="post">
         {% csrf_token %}
-        {% translate "Yes" as delete_button %}
+        {% translate "Yes, delete" as delete_button %}
         {% bootstrap_button button_type="submit" content=delete_button button_class="btn-danger" %}
     </form>
 {% endblock %}

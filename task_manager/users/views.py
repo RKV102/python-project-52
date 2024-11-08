@@ -1,12 +1,12 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.contrib.auth.models import User
+from task_manager.users.models import User
 from django.contrib.auth.mixins import AccessMixin
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserCreationForm, UserChangeForm
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from task_manager.mixins import LoginRequiredMixin, BaseSuccessUrlMixin
 
 
@@ -38,7 +38,7 @@ class UsageCheckMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         model_item_id = kwargs['pk']
         model_item = get_object_or_404(self.model, id=model_item_id)
-        if model_item.task_performer.all():
+        if model_item.task_executor.all():
             messages.error(
                 request,
                 self.message_text,
@@ -58,6 +58,7 @@ class CreateUserView(ModelMixin, SuccessUrlMixin,
     form_class = UserCreationForm
     template_name = 'users/create.html'
     success_message = _('Registration was successful')
+    redirect_url = 'login'
 
 
 class UpdateUserView(ModelMixin, SuccessUrlMixin,

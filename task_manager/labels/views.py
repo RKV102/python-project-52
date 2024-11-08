@@ -2,14 +2,18 @@ from .models import Label
 from .forms import LabelForm
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from task_manager.mixins import (LoginRequiredMixin, BaseUsageCheckMixin,
-                                 BaseSuccessUrlMixin)
 from django.contrib.messages.views import SuccessMessageMixin
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
+from django.utils.decorators import method_decorator
+from task_manager.decorators import usage_check_decorator
+from task_manager.mixins import LoginRequiredMixin, BaseSuccessUrlMixin
+
+
+REDIRECT_URL = 'labels'
 
 
 class SuccessUrlMixin(BaseSuccessUrlMixin):
-    redirect_url = 'labels'
+    redirect_url = REDIRECT_URL
 
 
 class ModelMixin:
@@ -18,11 +22,6 @@ class ModelMixin:
 
 class FormMixin:
     form_class = LabelForm
-
-
-class UsageCheckMixin(BaseUsageCheckMixin):
-    message_text = _("Label can't be deleted because it's used in the task")
-    redirect_url = 'labels'
 
 
 class IndexView(ModelMixin, LoginRequiredMixin, ListView):
@@ -42,7 +41,12 @@ class UpdateLabelView(FormMixin, ModelMixin, SuccessUrlMixin,
     success_message = _('Label has been updated')
 
 
+@method_decorator(usage_check_decorator(
+    model=Label,
+    message_text=_("Label can't be deleted because it's used in the task"),
+    redirect_url=REDIRECT_URL
+), name='post')
 class DeleteLabelView(ModelMixin, SuccessUrlMixin, LoginRequiredMixin,
-                      UsageCheckMixin, SuccessMessageMixin, DeleteView):
+                      SuccessMessageMixin, DeleteView):
     template_name = 'labels/delete.html'
     success_message = _('Label has been deleted')
