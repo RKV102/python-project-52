@@ -5,7 +5,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import gettext_lazy as _
 from django.utils.decorators import method_decorator
-from task_manager.decorators import usage_check_decorator
+from task_manager.decorators import usage_check_decorator, rollbar_decorator
 from task_manager.mixins import LoginRequiredMixin, BaseSuccessUrlMixin
 
 
@@ -29,18 +29,21 @@ class IndexView(ModelMixin, LoginRequiredMixin, ListView):
     context_object_name = 'statuses'
 
 
+@method_decorator(rollbar_decorator, name='post')
 class CreateStatusView(FormMixin, ModelMixin, SuccessUrlMixin,
                        LoginRequiredMixin, SuccessMessageMixin, CreateView):
     template_name = 'statuses/create.html'
     success_message = _('Status creation was successful')
 
 
+@method_decorator(rollbar_decorator, name='post')
 class UpdateStatusView(FormMixin, ModelMixin, SuccessUrlMixin,
                        LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     template_name = 'statuses/update.html'
     success_message = _('Status has been updated')
 
 
+@method_decorator(rollbar_decorator, name='post')
 @method_decorator(usage_check_decorator(
     model=Status,
     message_text=_("Status can't be deleted because it's used in the task"),
