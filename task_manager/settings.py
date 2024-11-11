@@ -33,7 +33,9 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', default='False') == 'True'
 
-ALLOWED_HOSTS = ('127.0.0.1', 'webserver', 'localhost')
+HOSTS = ('127.0.0.1', 'localhost', 'webserver')
+ALLOWED_HOST = os.getenv('ALLOWED_HOST')
+ALLOWED_HOSTS = (*HOSTS, ALLOWED_HOST) if ALLOWED_HOST else HOSTS
 
 AUTH_USER_MODEL = 'users.User'
 
