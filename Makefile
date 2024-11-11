@@ -1,8 +1,11 @@
 install:
 	poetry install
 
-dev:
+start-dev:
 	poetry run python manage.py runserver
+
+start-production:
+	poetry run gunicorn task_manager.wsgi:application
 
 configure:
 	poetry config virtualenvs.in-project true
