@@ -8,8 +8,6 @@ from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserCreationForm, UserChangeForm
 from django.utils.translation import gettext_lazy as _
 from task_manager.mixins import LoginRequiredMixin, BaseSuccessUrlMixin
-from task_manager.decorators import rollbar_decorator
-from django.utils.decorators import method_decorator
 
 
 class SuccessUrlMixin(BaseSuccessUrlMixin):
@@ -55,7 +53,6 @@ class IndexView(ModelMixin, ListView):
     context_object_name = 'users'
 
 
-@method_decorator(rollbar_decorator, name='post')
 class CreateUserView(ModelMixin, SuccessUrlMixin,
                      SuccessMessageMixin, CreateView):
     form_class = UserCreationForm
@@ -64,7 +61,6 @@ class CreateUserView(ModelMixin, SuccessUrlMixin,
     redirect_url = 'login'
 
 
-@method_decorator(rollbar_decorator, name='post')
 class UpdateUserView(ModelMixin, SuccessUrlMixin,
                      LoginRequiredMixin, PermissionRequiredMixin,
                      SuccessMessageMixin, UpdateView):
@@ -73,7 +69,6 @@ class UpdateUserView(ModelMixin, SuccessUrlMixin,
     success_message = _('User has been updated')
 
 
-@method_decorator(rollbar_decorator, name='post')
 class DeleteUserView(ModelMixin, SuccessUrlMixin, LoginRequiredMixin,
                      PermissionRequiredMixin, UsageCheckMixin,
                      SuccessMessageMixin, DeleteView):

@@ -14,6 +14,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 import dj_database_url
+import rollbar
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -160,4 +161,6 @@ ROLLBAR = {
     'environment': 'development' if DEBUG else 'production',
     'branch': 'master',
     'root': BASE_DIR,
+    'enabled': os.getenv('ROLLBAR_ENABLED', default=False) == 'True',
 }
+rollbar.init(**ROLLBAR)

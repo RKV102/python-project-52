@@ -9,8 +9,6 @@ from .models import Task
 from .forms import TaskForm
 from django.contrib import messages
 from task_manager.mixins import LoginRequiredMixin
-from task_manager.decorators import rollbar_decorator
-from django.utils.decorators import method_decorator
 from .filters import TaskFilter
 from task_manager.mixins import BaseSuccessUrlMixin
 
@@ -67,7 +65,6 @@ class ShowTaskView(LoginRequiredMixin, DetailView):
         return context
 
 
-@method_decorator(rollbar_decorator, name='post')
 class CreateTaskView(LoginRequiredMixin, View):
     template_name = 'tasks/create.html'
 
@@ -87,7 +84,6 @@ class CreateTaskView(LoginRequiredMixin, View):
         return render(request, self.template_name, {'form': form})
 
 
-@method_decorator(rollbar_decorator, name='post')
 class UpdateTaskView(ModelMixin, SuccessUrlMixin, LoginRequiredMixin,
                      SuccessMessageMixin, UpdateView):
     form_class = TaskForm
@@ -95,7 +91,6 @@ class UpdateTaskView(ModelMixin, SuccessUrlMixin, LoginRequiredMixin,
     success_message = _('Task has been updated')
 
 
-@method_decorator(rollbar_decorator, name='post')
 class DeleteTaskView(ModelMixin, SuccessUrlMixin, LoginRequiredMixin,
                      CreatorCheckMixin, SuccessMessageMixin, DeleteView):
     template_name = 'tasks/delete.html'
