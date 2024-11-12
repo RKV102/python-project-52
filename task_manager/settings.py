@@ -68,7 +68,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
-    'task_manager.middleware.SetDefaultLanguageMiddleware',
 ]
 
 ROOT_URLCONF = 'task_manager.urls'
@@ -130,11 +129,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 LANGUAGES = (
-    ('en-us', 'English'),
+    # ('en-us', 'English'),
     ('ru', 'Russian'),
 )
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 
