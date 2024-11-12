@@ -1,5 +1,4 @@
-from django.shortcuts import render
-from django.views import View
+from django.views.generic import TemplateView
 from django.contrib.auth.views import (LoginView as DjangoLoginView,
                                        LogoutView as DjangoLogoutView)
 from django.contrib.messages.views import SuccessMessageMixin
@@ -7,10 +6,8 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
 
 
-class IndexView(View):
-
-    def get(self, request, *args, **kwargs):
-        return render(request, 'index.html')
+class IndexView(TemplateView):
+    template_name = 'index.html'
 
 
 class LoginView(SuccessMessageMixin, DjangoLoginView):
