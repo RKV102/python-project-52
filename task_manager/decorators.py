@@ -23,15 +23,3 @@ def usage_check_decorator(model, message_text, redirect_url):
         return inner
 
     return wrapper
-
-
-def rollbar_decorator(func):
-
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception:
-            rollbar.report_exc_info()
-            return redirect('/')
-
-    return wrapper
