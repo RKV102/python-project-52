@@ -7,21 +7,17 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserCreationForm, UserChangeForm
 from django.utils.translation import gettext_lazy as _
-from task_manager.mixins import (LoginRequiredMixin, BaseSuccessUrlMixin,
+from task_manager.mixins import (LoginRequiredMixin, SuccessUrlMixin,
                                  UsageCheckMixin as BaseUsageCheckMixin)
 
 
-REDIRECT_URL = 'users'
+class RedirectUrlMixin:
+    redirect_url = 'users'
 
 
 class UsageCheckMixin(BaseUsageCheckMixin):
     message = _("User can't be deleted because he's used in the task")
-    redirect_url = REDIRECT_URL
     methods = ('GET', 'POSTS')
-
-
-class SuccessUrlMixin(BaseSuccessUrlMixin):
-    redirect_url = REDIRECT_URL
 
 
 class ModelMixin:
@@ -47,7 +43,7 @@ class IndexView(ModelMixin, ListView):
     context_object_name = 'users'
 
 
-class CreateUserView(ModelMixin, SuccessUrlMixin,
+class CreateUserView(ModelMixin, RedirectUrlMixin, SuccessUrlMixin,
                      SuccessMessageMixin, CreateView):
     form_class = UserCreationForm
     template_name = 'users/create.html'
@@ -55,7 +51,7 @@ class CreateUserView(ModelMixin, SuccessUrlMixin,
     redirect_url = 'login'
 
 
-class UpdateUserView(ModelMixin, SuccessUrlMixin,
+class UpdateUserView(ModelMixin, RedirectUrlMixin, SuccessUrlMixin,
                      LoginRequiredMixin, PermissionRequiredMixin,
                      SuccessMessageMixin, UpdateView):
     form_class = UserChangeForm
@@ -63,8 +59,8 @@ class UpdateUserView(ModelMixin, SuccessUrlMixin,
     success_message = _('User has been updated')
 
 
-class DeleteUserView(ModelMixin, SuccessUrlMixin, LoginRequiredMixin,
-                     PermissionRequiredMixin, UsageCheckMixin,
-                     SuccessMessageMixin, DeleteView):
+class DeleteUserView(ModelMixin, RedirectUrlMixin, SuccessUrlMixin,
+                     LoginRequiredMixin, PermissionRequiredMixin,
+                     UsageCheckMixin, SuccessMessageMixin, DeleteView):
     template_name = 'users/delete.html'
     success_message = _('User has been deleted')

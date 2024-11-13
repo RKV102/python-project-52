@@ -10,7 +10,7 @@ from .forms import TaskForm
 from django.contrib import messages
 from task_manager.mixins import LoginRequiredMixin
 from .filters import TaskFilter
-from task_manager.mixins import BaseSuccessUrlMixin
+from task_manager.mixins import SuccessUrlMixin as BaseSuccessUrlMixin
 
 
 class SuccessUrlMixin(BaseSuccessUrlMixin):
@@ -23,6 +23,7 @@ class ModelMixin:
 
 class CreatorCheckMixin(AccessMixin):
     message_text = _('Only the creator of the task can delete it')
+    redirect_url = ''
 
     def dispatch(self, request, *args, **kwargs):
         current_user_id = request.user.id

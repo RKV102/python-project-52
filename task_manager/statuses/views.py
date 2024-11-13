@@ -4,21 +4,16 @@ from .forms import StatusForm
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import gettext_lazy as _
-from task_manager.mixins import (LoginRequiredMixin, BaseSuccessUrlMixin,
+from task_manager.mixins import (LoginRequiredMixin, SuccessUrlMixin,
                                  UsageCheckMixin as BaseUsageCheckMixin)
 
 
-REDIRECT_URL = 'statuses'
+class RedirectUrlMixin:
+    redirect_url = 'statuses'
 
 
 class UsageCheckMixin(BaseUsageCheckMixin):
     message = _("Status can't be deleted because it's used in the task")
-    model = Status
-    redirect_url = REDIRECT_URL
-
-
-class SuccessUrlMixin(BaseSuccessUrlMixin):
-    redirect_url = REDIRECT_URL
 
 
 class ModelMixin:
@@ -34,19 +29,22 @@ class IndexView(ModelMixin, LoginRequiredMixin, ListView):
     context_object_name = 'statuses'
 
 
-class CreateStatusView(FormMixin, ModelMixin, SuccessUrlMixin,
-                       LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class CreateStatusView(FormMixin, ModelMixin, RedirectUrlMixin,
+                       SuccessUrlMixin, LoginRequiredMixin,
+                       SuccessMessageMixin, CreateView):
     template_name = 'statuses/create.html'
     success_message = _('Status creation was successful')
 
 
-class UpdateStatusView(FormMixin, ModelMixin, SuccessUrlMixin,
-                       LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class UpdateStatusView(FormMixin, ModelMixin, RedirectUrlMixin,
+                       SuccessUrlMixin, LoginRequiredMixin,
+                       SuccessMessageMixin, UpdateView):
     template_name = 'statuses/update.html'
     success_message = _('Status has been updated')
 
 
-class DeleteStatusView(UsageCheckMixin, ModelMixin, SuccessUrlMixin,
-                       LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class DeleteStatusView(ModelMixin, RedirectUrlMixin, SuccessUrlMixin,
+                       LoginRequiredMixin, UsageCheckMixin,
+                       SuccessMessageMixin, DeleteView):
     template_name = 'statuses/delete.html'
     success_message = _('Status has been deleted')

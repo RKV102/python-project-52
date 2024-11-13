@@ -22,8 +22,8 @@ class LoginRequiredMixin(DjangoLoginRequiredMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class BaseSuccessUrlMixin:
-    redirect_url = '/'
+class SuccessUrlMixin:
+    redirect_url = 'index'
 
     def get_success_url(self):
         return reverse_lazy(self.redirect_url)
@@ -31,7 +31,7 @@ class BaseSuccessUrlMixin:
 
 class UsageCheckMixin(AccessMixin):
     message = ''
-    model = User
+    model = ''
     redirect_url = 'index'
     methods = ('POST',)
 
