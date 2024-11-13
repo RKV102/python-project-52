@@ -11,16 +11,13 @@ class LoginRequiredMixin(DjangoLoginRequiredMixin):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return self.handle_no_permission(request)
+            messages.error(
+                request,
+                _('You are not logged in! Please log in'),
+                extra_tags='danger'
+            )
+            return redirect(self.login_url)
         return super().dispatch(request, *args, **kwargs)
-
-    def handle_no_permission(self, request):
-        messages.error(
-            request,
-            _('You are not logged in! Please log in'),
-            extra_tags='danger'
-        )
-        return redirect(self.login_url)
 
 
 class BaseSuccessUrlMixin:
