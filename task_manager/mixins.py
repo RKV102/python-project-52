@@ -36,13 +36,16 @@ class UsageCheckMixin(AccessMixin):
     methods = ('POST',)
 
     def dispatch(self, request, *args, **kwargs):
+        print(self.model)
         model_item_id = kwargs['pk']
         model_item = get_object_or_404(self.model, id=model_item_id)
         if request.method not in self.methods:
             return super().dispatch(request, *args, **kwargs)
-        if self.model is User and model_item.task_executor.exists():
-            messages.error(request, self.message, extra_tags='danger')
-            return redirect(self.redirect_url)
+        if self.model is User:
+            if model_item.task_executor.exists():
+                messages.error(request, self.message, extra_tags='danger')
+                return redirect(self.redirect_url)
+            return super().dispatch(request, *args, **kwargs)
         if model_item.task_set.exists():
             messages.error(request, self.message, extra_tags='danger')
             return redirect(self.redirect_url)
