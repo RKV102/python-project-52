@@ -4,12 +4,17 @@ from .forms import StatusForm
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import gettext_lazy as _
-from django.utils.decorators import method_decorator
-from task_manager.decorators import usage_check_decorator
-from task_manager.mixins import LoginRequiredMixin, BaseSuccessUrlMixin
+from task_manager.mixins import (LoginRequiredMixin, BaseSuccessUrlMixin,
+                                 UsageCheckMixin as BaseUsageCheckMixin)
 
 
 REDIRECT_URL = 'statuses'
+
+
+class UsageCheckMixin(BaseUsageCheckMixin):
+    message = _("Status can't be deleted because it's used in the task")
+    model = Status
+    redirect_url = REDIRECT_URL
 
 
 class SuccessUrlMixin(BaseSuccessUrlMixin):
@@ -41,12 +46,7 @@ class UpdateStatusView(FormMixin, ModelMixin, SuccessUrlMixin,
     success_message = _('Status has been updated')
 
 
-@method_decorator(usage_check_decorator(
-    model=Status,
-    message_text=_("Status can't be deleted because it's used in the task"),
-    redirect_url=REDIRECT_URL
-), name='post')
-class DeleteStatusView(ModelMixin, SuccessUrlMixin, LoginRequiredMixin,
-                       SuccessMessageMixin, DeleteView):
+class DeleteStatusView(UsageCheckMixin, ModelMixin, SuccessUrlMixin,
+                       LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     template_name = 'statuses/delete.html'
     success_message = _('Status has been deleted')

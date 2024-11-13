@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from task_manager.users.models import User
@@ -7,11 +7,21 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserCreationForm, UserChangeForm
 from django.utils.translation import gettext_lazy as _
-from task_manager.mixins import LoginRequiredMixin, BaseSuccessUrlMixin
+from task_manager.mixins import (LoginRequiredMixin, BaseSuccessUrlMixin,
+                                 UsageCheckMixin as BaseUsageCheckMixin)
+
+
+REDIRECT_URL = 'users'
+
+
+class UsageCheckMixin(BaseUsageCheckMixin):
+    message = _("User can't be deleted because he's used in the task")
+    redirect_url = REDIRECT_URL
+    methods = ('GET', 'POSTS')
 
 
 class SuccessUrlMixin(BaseSuccessUrlMixin):
-    redirect_url = 'users'
+    redirect_url = REDIRECT_URL
 
 
 class ModelMixin:
@@ -26,22 +36,6 @@ class PermissionRequiredMixin(AccessMixin):
             messages.error(
                 request,
                 _("You don't have the rights to change another user"),
-                extra_tags='danger'
-            )
-            return redirect('users')
-        return super().dispatch(request, *args, **kwargs)
-
-
-class UsageCheckMixin(AccessMixin):
-    message_text = _("User can't be deleted because he's used in the task")
-
-    def dispatch(self, request, *args, **kwargs):
-        model_item_id = kwargs['pk']
-        model_item = get_object_or_404(self.model, id=model_item_id)
-        if model_item.task_executor.all():
-            messages.error(
-                request,
-                self.message_text,
                 extra_tags='danger'
             )
             return redirect('users')

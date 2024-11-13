@@ -4,12 +4,17 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import gettext_lazy as _
-from django.utils.decorators import method_decorator
-from task_manager.decorators import usage_check_decorator
-from task_manager.mixins import LoginRequiredMixin, BaseSuccessUrlMixin
+from task_manager.mixins import (LoginRequiredMixin, BaseSuccessUrlMixin,
+                                 UsageCheckMixin as BaseUsageCheckMixin)
 
 
 REDIRECT_URL = 'labels'
+
+
+class UsageCheckMixin(BaseUsageCheckMixin):
+    message = _("Label can't be deleted because it's used in the task")
+    model = Label
+    redirect_url = REDIRECT_URL
 
 
 class SuccessUrlMixin(BaseSuccessUrlMixin):
@@ -41,12 +46,7 @@ class UpdateLabelView(FormMixin, ModelMixin, SuccessUrlMixin,
     success_message = _('Label has been updated')
 
 
-@method_decorator(usage_check_decorator(
-    model=Label,
-    message_text=_("Label can't be deleted because it's used in the task"),
-    redirect_url=REDIRECT_URL
-), name='post')
-class DeleteLabelView(ModelMixin, SuccessUrlMixin, LoginRequiredMixin,
-                      SuccessMessageMixin, DeleteView):
+class DeleteLabelView(UsageCheckMixin, ModelMixin, SuccessUrlMixin,
+                      LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     template_name = 'labels/delete.html'
     success_message = _('Label has been deleted')
