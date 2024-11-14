@@ -24,6 +24,9 @@ jobs:
       run: make lint
     - name: Testing
       run: make test
+      env:
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        ROLLBAR_TOKEN: ${{ secrets.ROLLBAR_TOKEN }}
     - name: Checking coverage by Code Climate
       uses: paambaati/codeclimate-action@v5.0.0
       env:
