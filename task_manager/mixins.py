@@ -36,7 +36,6 @@ class UsageCheckMixin(AccessMixin):
     methods = ('POST',)
 
     def dispatch(self, request, *args, **kwargs):
-        print(self.model)
         model_item_id = kwargs['pk']
         model_item = get_object_or_404(self.model, id=model_item_id)
         if request.method not in self.methods:
