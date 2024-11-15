@@ -13,8 +13,11 @@ from .filters import TaskFilter
 from task_manager.mixins import SuccessUrlMixin as BaseSuccessUrlMixin
 
 
+REDIRECT_URL = 'tasks'
+
+
 class SuccessUrlMixin(BaseSuccessUrlMixin):
-    redirect_url = 'tasks'
+    redirect_url = REDIRECT_URL
 
 
 class ModelMixin:
@@ -23,7 +26,6 @@ class ModelMixin:
 
 class CreatorCheckMixin(AccessMixin):
     message_text = _('Only the creator of the task can delete it')
-    redirect_url = ''
 
     def dispatch(self, request, *args, **kwargs):
         current_user_id = request.user.id
@@ -38,7 +40,7 @@ class CreatorCheckMixin(AccessMixin):
                 self.message_text,
                 extra_tags='danger'
             )
-            return redirect('tasks')
+            return redirect(REDIRECT_URL)
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -81,7 +83,7 @@ class CreateTaskView(LoginRequiredMixin, View):
         if form.is_valid():
             form.save()
             messages.success(request, _('Task creation was successful'))
-            return redirect('tasks')
+            return redirect(REDIRECT_URL)
         return render(request, self.template_name, {'form': form})
 
 
