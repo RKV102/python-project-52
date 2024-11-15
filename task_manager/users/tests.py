@@ -5,7 +5,7 @@ from django.contrib.messages import get_messages
 from django.utils.translation import gettext_lazy as _
 
 
-class TestCreateUser(TestCase):
+class UserTestCase(TestCase):
 
     def setUp(self):
         self.user_create_data = {
