@@ -1,21 +1,101 @@
 from django.test import TestCase
 from .models import Status
+from django.urls import reverse
+from django.contrib.messages import get_messages
+from django.utils.translation import gettext_lazy as _
 
 
 class StatusTestCase(TestCase):
 
     def setUp(self):
-        Status.objects.create(name='test_status')
+        user_create_data = {
+            'username': 'test_username',
+            'first_name': 'test_first_name',
+            'last_name': 'test_last_name',
+            'password1': 'PsWd123*',
+            'password2': 'PsWd123*'
+        }
+        user_login_data = {
+            'username': 'test_username',
+            'password': 'PsWd123*'
+        }
+        self.status_create_data = {
+            'name': 'test_status_name'
+        }
+        self.status_update_data = {
+            'name': 'test_status_name_new'
+        }
+        self.client.post(
+            reverse('users_create'),
+            data=user_create_data,
+        )
+        self.client.post(
+            reverse('login'),
+            data=user_login_data
+        )
 
-    def test_status_can_be_created(self):
-        assert Status.objects.last().name == 'test_status'
+    def create_status(self):
+        return self.client.post(
+            reverse('statuses_create'),
+            data=self.status_create_data,
+            follow=True
+        )
 
-    def test_status_can_be_updated(self):
-        status = Status.objects.last()
-        status.name = 'test_name'
-        status.save()
-        assert Status.objects.last().name == 'test_name'
+    def test_create_status(self):
+        statuses_count = Status.objects.count()
+        response = self.create_status()
+        self.assertEqual(Status.objects.count(), statuses_count + 1)
+        self.assertEqual(
+            list(get_messages(response.wsgi_request))[-1].message,
+            _("Status creation was successful")
+        )
 
-    def test_status_can_be_deleted(self):
-        Status.objects.last().delete()
-        assert not Status.objects.all()
+    def test_read_status(self):
+        self.create_status()
+        response = self.client.get(reverse('statuses'))
+        self.assertContains(
+            response,
+            self.status_create_data['name'],
+        )
+
+    def test_update_status(self):
+        self.create_status()
+        created_status = Status.objects.last()
+        response = self.client.post(
+            reverse(
+                'statuses_update',
+                kwargs={'pk': created_status.pk}
+            ),
+            data=self.status_update_data,
+            follow=True
+        )
+        self.assertEqual(
+            list(get_messages(response.wsgi_request))[-1].message,
+            _("Status has been updated")
+        )
+        response = self.client.get(reverse('statuses'))
+        self.assertContains(
+            response,
+            self.status_update_data['name'],
+        )
+
+    def test_delete_status(self):
+        self.create_status()
+        created_status = Status.objects.last()
+        response = self.client.post(
+            reverse(
+                'statuses_delete',
+                kwargs={'pk': created_status.pk}
+            ),
+            data=self.status_update_data,
+            follow=True
+        )
+        self.assertEqual(
+            list(get_messages(response.wsgi_request))[-1].message,
+            _("Status has been deleted")
+        )
+        response = self.client.get(reverse('statuses'))
+        self.assertNotContains(
+            response,
+            self.status_create_data['name'],
+        )
