@@ -40,12 +40,12 @@ class UsageCheckMixin(AccessMixin):
         model_item = get_object_or_404(self.model, id=model_item_id)
         if request.method not in self.methods:
             return super().dispatch(request, *args, **kwargs)
-        if self.model is User:
-            if model_item.task_executor.exists():
-                messages.error(request, self.message, extra_tags='danger')
-                return redirect(self.redirect_url)
-            return super().dispatch(request, *args, **kwargs)
-        if model_item.task_set.exists():
+        if self.has_connections(model_item):
             messages.error(request, self.message, extra_tags='danger')
             return redirect(self.redirect_url)
         return super().dispatch(request, *args, **kwargs)
+
+    def has_connections(self, model_item):
+        if self.model is User:
+            return model_item.task_executor.exists()
+        return model_item.task_set.exists()
