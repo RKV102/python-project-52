@@ -34,16 +34,13 @@ class StatusTestCase(TestCase):
             data=user_login_data
         )
 
-    def create_status(self):
-        return self.client.post(
+    def test_create_status(self):
+        statuses_count = Status.objects.count()
+        response = self.client.post(
             reverse('statuses_create'),
             data=self.status_create_data,
             follow=True
         )
-
-    def test_create_status(self):
-        statuses_count = Status.objects.count()
-        response = self.create_status()
         self.assertEqual(Status.objects.count(), statuses_count + 1)
         self.assertEqual(
             list(get_messages(response.wsgi_request))[-1].message,
@@ -51,7 +48,11 @@ class StatusTestCase(TestCase):
         )
 
     def test_read_status(self):
-        self.create_status()
+        self.client.post(
+            reverse('statuses_create'),
+            data=self.status_create_data,
+            follow=True
+        )
         response = self.client.get(reverse('statuses'))
         self.assertContains(
             response,
@@ -59,7 +60,11 @@ class StatusTestCase(TestCase):
         )
 
     def test_update_status(self):
-        self.create_status()
+        self.client.post(
+            reverse('statuses_create'),
+            data=self.status_create_data,
+            follow=True
+        )
         created_status = Status.objects.last()
         response = self.client.post(
             reverse(
@@ -80,7 +85,11 @@ class StatusTestCase(TestCase):
         )
 
     def test_delete_status(self):
-        self.create_status()
+        self.client.post(
+            reverse('statuses_create'),
+            data=self.status_create_data,
+            follow=True
+        )
         created_status = Status.objects.last()
         response = self.client.post(
             reverse(
