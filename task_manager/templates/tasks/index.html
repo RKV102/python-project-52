@@ -42,7 +42,7 @@
                 <tr>
                     <td>{{ task.id }}</td>
                     <td>
-                        <a href="{% url 'tasks_show' pk=task.id %}">{{ task.name }}</a>
+                        <a href="{% url 'tasks_detail' pk=task.id %}">{{ task.name }}</a>
                     </td>
                     <td>{{ task.status }}</td>
                     <td>{{ task.creator }}</td>

@@ -84,7 +84,7 @@ class TasksTestCase(TestCase):
         )
         created_task = Task.objects.last()
         response = self.client.get(reverse(
-            'tasks_show',
+            'tasks_detail',
             kwargs={'pk': created_task.pk}
         ))
         self.assertContains(response, self.task_create_data['name'])
@@ -108,7 +108,7 @@ class TasksTestCase(TestCase):
             _("Task has been updated")
         )
         response = self.client.get(reverse(
-            'tasks_show',
+            'tasks_detail',
             kwargs={'pk': created_task.pk}
         ))
         self.assertContains(response, self.task_update_data['name'])
