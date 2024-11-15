@@ -29,7 +29,7 @@ class SuccessUrlMixin:
         return reverse_lazy(self.redirect_url)
 
 
-class UsageCheckMixin(AccessMixin):
+class DeletionProtectedMixin(AccessMixin):
     message = ''
     model = ''
     redirect_url = 'index'

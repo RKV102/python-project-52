@@ -8,14 +8,15 @@ from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserCreationForm, UserChangeForm
 from django.utils.translation import gettext_lazy as _
 from task_manager.mixins import (LoginRequiredMixin, SuccessUrlMixin,
-                                 UsageCheckMixin as BaseUsageCheckMixin)
+                                 DeletionProtectedMixin as
+                                 BaseDeletionProtectedMixin)
 
 
 class RedirectUrlMixin:
     redirect_url = 'users'
 
 
-class UsageCheckMixin(BaseUsageCheckMixin):
+class DeletionProtectedMixin(BaseDeletionProtectedMixin):
     message = _("User can't be deleted because he's used in the task")
     methods = ('GET', 'POSTS')
 
@@ -61,6 +62,6 @@ class UpdateUserView(ModelMixin, RedirectUrlMixin, SuccessUrlMixin,
 
 class DeleteUserView(ModelMixin, RedirectUrlMixin, SuccessUrlMixin,
                      LoginRequiredMixin, PermissionRequiredMixin,
-                     UsageCheckMixin, SuccessMessageMixin, DeleteView):
+                     DeletionProtectedMixin, SuccessMessageMixin, DeleteView):
     template_name = 'users/delete.html'
     success_message = _('User has been deleted')
