@@ -5,7 +5,7 @@ from django.contrib.messages import get_messages
 from django.utils.translation import gettext_lazy as _
 
 
-class StatusTestCase(TestCase):
+class LabelsTestCase(TestCase):
 
     def setUp(self):
         user_create_data = {
@@ -34,32 +34,40 @@ class StatusTestCase(TestCase):
             data=user_login_data
         )
 
-    def create_label(self):
-        return self.client.post(
+    def get_message(self, response):
+        messages = list(get_messages(response.wsgi_request))
+        if messages:
+            return messages[-1].message
+
+    def test_create_label(self):
+        labels_count = Label.objects.count()
+        response = self.client.post(
             reverse('labels_create'),
             data=self.label_create_data,
             follow=True
         )
-
-    def test_create_status(self):
-        labels_count = Label.objects.count()
-        response = self.create_label()
         self.assertEqual(Label.objects.count(), labels_count + 1)
         self.assertEqual(
-            list(get_messages(response.wsgi_request))[-1].message,
+            self.get_message(response),
             _("Label creation was successful")
         )
 
-    def test_read_status(self):
-        self.create_label()
+    def test_read_label(self):
+        self.client.post(
+            reverse('labels_create'),
+            data=self.label_create_data
+        )
         response = self.client.get(reverse('labels'))
         self.assertContains(
             response,
             self.label_create_data['name'],
         )
 
-    def test_update_status(self):
-        self.create_label()
+    def test_update_label(self):
+        self.client.post(
+            reverse('labels_create'),
+            data=self.label_create_data
+        )
         created_label = Label.objects.last()
         response = self.client.post(
             reverse(
@@ -70,7 +78,7 @@ class StatusTestCase(TestCase):
             follow=True
         )
         self.assertEqual(
-            list(get_messages(response.wsgi_request))[-1].message,
+            self.get_message(response),
             _("Label has been updated")
         )
         response = self.client.get(reverse('labels'))
@@ -79,8 +87,12 @@ class StatusTestCase(TestCase):
             self.label_update_data['name'],
         )
 
-    def test_delete_status(self):
-        self.create_label()
+    def test_delete_label(self):
+        self.client.post(
+            reverse('labels_create'),
+            data=self.label_create_data,
+            follow=True
+        )
         created_label = Label.objects.last()
         response = self.client.post(
             reverse(
@@ -91,7 +103,7 @@ class StatusTestCase(TestCase):
             follow=True
         )
         self.assertEqual(
-            list(get_messages(response.wsgi_request))[-1].message,
+            self.get_message(response),
             _("Label has been deleted")
         )
         response = self.client.get(reverse('labels'))

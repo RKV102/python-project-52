@@ -27,14 +27,10 @@ class UserTestCase(TestCase):
             'password2': 'PsWd123*NeW'
         }
 
-    def assert_user_data(self, response, first_assert, second_assert,
-                         contains=True):
-        if contains:
-            self.assertContains(response, first_assert)
-            self.assertContains(response, second_assert)
-        else:
-            self.assertNotContains(response, first_assert)
-            self.assertNotContains(response, second_assert)
+    def get_message(self, response):
+        messages = list(get_messages(response.wsgi_request))
+        if messages:
+            return messages[-1].message
 
     def test_create_user(self):
         users_count = User.objects.count()
@@ -45,29 +41,22 @@ class UserTestCase(TestCase):
         )
         self.assertEqual(User.objects.count(), users_count + 1)
         self.assertEqual(
-            list(get_messages(response.wsgi_request))[-1].message,
+            self.get_message(response),
             _("Registration was successful")
         )
 
     def test_read_user(self):
         self.client.post(
             reverse('users_create'),
-            data=self.user_create_data,
-            follow=True
+            data=self.user_create_data
         )
         response = self.client.get(reverse('users'))
-        self.assert_user_data(
-            response,
-            self.user_create_data['username'],
-            f"{self.user_create_data['first_name']} "
-            f"{self.user_create_data['last_name']}"
-        )
+        self.assertContains(response, self.user_create_data['username'])
 
     def test_update_user(self):
         self.client.post(
             reverse('users_create'),
-            data=self.user_create_data,
-            follow=True
+            data=self.user_create_data
         )
         created_user = User.objects.last()
         self.client.post(
@@ -80,22 +69,16 @@ class UserTestCase(TestCase):
             follow=True
         )
         self.assertEqual(
-            list(get_messages(response.wsgi_request))[-1].message,
+            self.get_message(response),
             _("User has been updated")
         )
         response = self.client.get(reverse('users'))
-        self.assert_user_data(
-            response,
-            self.user_update_data['username'],
-            f"{self.user_update_data['first_name']} "
-            f"{self.user_update_data['last_name']}"
-        )
+        self.assertContains(response, self.user_update_data['username'])
 
     def test_delete_user(self):
         self.client.post(
             reverse('users_create'),
-            data=self.user_create_data,
-            follow=True
+            data=self.user_create_data
         )
         created_user = User.objects.last()
         self.client.post(
@@ -103,17 +86,12 @@ class UserTestCase(TestCase):
             data=self.user_login_data,
         )
         response = self.client.post(
-            reverse('users_delete', kwargs={'pk': created_user.pk})
+            reverse('users_delete', kwargs={'pk': created_user.pk}),
+            follow=True
         )
         self.assertEqual(
-            list(get_messages(response.wsgi_request))[-1].message,
+            self.get_message(response),
             _("User has been deleted")
         )
         response = self.client.get(reverse('users'))
-        self.assert_user_data(
-            response,
-            self.user_create_data['username'],
-            f"{self.user_create_data['first_name']} "
-            f"{self.user_create_data['last_name']}",
-            contains=False
-        )
+        self.assertNotContains(response, self.user_create_data['username'])

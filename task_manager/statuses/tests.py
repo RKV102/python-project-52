@@ -34,6 +34,11 @@ class StatusTestCase(TestCase):
             data=user_login_data
         )
 
+    def get_message(self, response):
+        messages = list(get_messages(response.wsgi_request))
+        if messages:
+            return messages[-1].message
+
     def test_create_status(self):
         statuses_count = Status.objects.count()
         response = self.client.post(
@@ -43,15 +48,14 @@ class StatusTestCase(TestCase):
         )
         self.assertEqual(Status.objects.count(), statuses_count + 1)
         self.assertEqual(
-            list(get_messages(response.wsgi_request))[-1].message,
+            self.get_message(response),
             _("Status creation was successful")
         )
 
     def test_read_status(self):
         self.client.post(
             reverse('statuses_create'),
-            data=self.status_create_data,
-            follow=True
+            data=self.status_create_data
         )
         response = self.client.get(reverse('statuses'))
         self.assertContains(
@@ -62,8 +66,7 @@ class StatusTestCase(TestCase):
     def test_update_status(self):
         self.client.post(
             reverse('statuses_create'),
-            data=self.status_create_data,
-            follow=True
+            data=self.status_create_data
         )
         created_status = Status.objects.last()
         response = self.client.post(
@@ -75,7 +78,7 @@ class StatusTestCase(TestCase):
             follow=True
         )
         self.assertEqual(
-            list(get_messages(response.wsgi_request))[-1].message,
+            self.get_message(response),
             _("Status has been updated")
         )
         response = self.client.get(reverse('statuses'))
@@ -87,8 +90,7 @@ class StatusTestCase(TestCase):
     def test_delete_status(self):
         self.client.post(
             reverse('statuses_create'),
-            data=self.status_create_data,
-            follow=True
+            data=self.status_create_data
         )
         created_status = Status.objects.last()
         response = self.client.post(
@@ -100,7 +102,7 @@ class StatusTestCase(TestCase):
             follow=True
         )
         self.assertEqual(
-            list(get_messages(response.wsgi_request))[-1].message,
+            self.get_message(response),
             _("Status has been deleted")
         )
         response = self.client.get(reverse('statuses'))

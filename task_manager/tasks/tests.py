@@ -1,75 +1,135 @@
 from django.test import TestCase
-from .models import Task, User, Status
-from .filters import TaskFilter
+from .models import Task
+from task_manager.users.models import User
+from task_manager.statuses.models import Status
+from django.urls import reverse
+from django.contrib.messages import get_messages
+from django.utils.translation import gettext_lazy as _
 
 
-class TaskTestCase(TestCase):
+class TasksTestCase(TestCase):
 
     def setUp(self):
-        status1 = Status.objects.create(name='status1')
-        status2 = Status.objects.create(name='status2')
-        creator1 = User.objects.create(
-            username='username1',
-            password=''
+        user_create_data_1 = {
+            'username': 'test_username',
+            'first_name': 'test_first_name',
+            'last_name': 'test_last_name',
+            'password1': 'PsWd123*',
+            'password2': 'PsWd123*',
+        }
+        user_create_data_2 = {
+            'username': 'test_username_new',
+            'first_name': 'test_first_name_new',
+            'last_name': 'test_last_name_new',
+            'password1': 'PsWd123*NeW',
+            'password2': 'PsWd123*NeW'
+        }
+        user_login_data = {
+            'username': 'test_username',
+            'password': 'PsWd123*'
+        }
+        created_users = []
+        for user_create_data in (user_create_data_1, user_create_data_2):
+            self.client.post(
+                reverse('users_create'),
+                data=user_create_data,
+            )
+            created_users.append(User.objects.last())
+        created_user_1, created_user_2 = created_users
+        self.client.post(
+            reverse('login'),
+            data=user_login_data
         )
-        creator2 = User.objects.create(
-            username='username2',
-            password=''
+        created_status_1, created_status_2 = [
+            Status.objects.create(name=status_name)
+            for status_name in ('test_status_name', 'test_status_name_new')
+        ]
+        self.task_create_data = {
+            'name': 'test_task_name',
+            'description': 'test_task_description',
+            'status': created_status_1.id,
+            'creator': created_user_1.id,
+            'executor': created_user_2.id,
+        }
+        self.task_update_data = {
+            'name': 'test_task_name_new',
+            'description': 'test_task_description_new',
+            'status': created_status_2.id,
+            'creator': created_user_1.id,
+            'executor': created_user_1.id,
+        }
+
+    def get_message(self, response):
+        messages = list(get_messages(response.wsgi_request))
+        if messages:
+            return messages[-1].message
+
+    def test_create_task(self):
+        tasks_count = Task.objects.count()
+        response = self.client.post(
+            reverse('tasks_create'),
+            data=self.task_create_data,
+            follow=True
         )
-        creator3 = User.objects.create(
-            username='username3',
-            password=''
-        )
-        Task.objects.create(
-            name='task1',
-            creator=creator1,
-            status=status1,
-        )
-        Task.objects.create(
-            name='task2',
-            creator=creator2,
-            status=status2,
-            executor=creator3
-        )
-        Task.objects.create(
-            name='task3',
-            creator=creator1,
-            status=status1,
-            executor=creator2
+        self.assertEqual(Task.objects.count(), tasks_count + 1)
+        self.assertEqual(
+            self.get_message(response),
+            _("Task creation was successful")
         )
 
-    def test_task_can_be_created(self):
-        assert Task.objects.last().name == 'task3'
+    def test_read_task(self):
+        self.client.post(
+            reverse('tasks_create'),
+            data=self.task_create_data
+        )
+        created_task = Task.objects.last()
+        response = self.client.get(reverse(
+            'tasks_show',
+            kwargs={'pk': created_task.pk}
+        ))
+        self.assertContains(response, self.task_create_data['name'])
 
-    def test_task_can_be_updated(self):
-        task = Task.objects.last()
-        task.name = 'test_name'
-        task.save()
-        assert Task.objects.last().name == 'test_name'
+    def test_update_task(self):
+        self.client.post(
+            reverse('tasks_create'),
+            data=self.task_create_data
+        )
+        created_task = Task.objects.last()
+        response = self.client.post(
+            reverse(
+                'tasks_update',
+                kwargs={'pk': created_task.pk}
+            ),
+            data=self.task_update_data,
+            follow=True
+        )
+        self.assertEqual(
+            self.get_message(response),
+            _("Task has been updated")
+        )
+        response = self.client.get(reverse(
+            'tasks_show',
+            kwargs={'pk': created_task.pk}
+        ))
+        self.assertContains(response, self.task_update_data['name'])
 
-    def test_task_can_be_deleted(self):
-        Task.objects.last().delete()
-        assert Task.objects.count() == 2
-
-    def test_filter_task_by_status(self):
-        status = Status.objects.get(name='status1')
-        filter = TaskFilter({'status': status})
-        filtered_tasks = filter.qs
-        assert len(filtered_tasks) == 2
-        assert all([task.status == status for task in filtered_tasks])
-
-    def test_filter_task_by_executor(self):
-        executor = User.objects.get(username='username3')
-        filter = TaskFilter({'executor': executor})
-        filtered_tasks = filter.qs
-        assert len(filtered_tasks) == 1
-        assert filtered_tasks.last().executor == executor
-
-    def test_filter_task_by_status_and_executor(self):
-        status = Status.objects.get(name='status1')
-        executor = User.objects.get(username='username2')
-        filter = TaskFilter({'status': status, 'executor': executor})
-        filtered_tasks = filter.qs
-        task = filtered_tasks.last()
-        assert len(filtered_tasks) == 1
-        assert task.status == status and task.executor == executor
+    def test_delete_task(self):
+        self.client.post(
+            reverse('tasks_create'),
+            data=self.task_create_data
+        )
+        created_task = Task.objects.last()
+        response = self.client.post(
+            reverse(
+                'tasks_delete',
+                kwargs={'pk': created_task.pk}
+            ),
+            data=self.task_update_data,
+            follow=True
+        )
+        self.assertEqual(
+            self.get_message(response),
+            _("Task has been deleted")
+        )
+        response = self.client.get(reverse('tasks'))
+        self.assertNotContains(response, self.task_create_data['name'])
