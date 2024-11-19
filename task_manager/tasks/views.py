@@ -10,7 +10,8 @@ from .forms import TaskForm
 from django.contrib import messages
 from task_manager.mixins import LoginRequiredMixin
 from .filters import TaskFilter
-from task_manager.mixins import SuccessUrlMixin as BaseSuccessUrlMixin
+from task_manager.mixins import (SuccessUrlMixin as BaseSuccessUrlMixin,
+                                 ContextDataMixin)
 
 
 REDIRECT_URL = 'tasks'
@@ -69,14 +70,21 @@ class ShowTaskView(LoginRequiredMixin, DetailView):
 
 
 class CreateTaskView(LoginRequiredMixin, View):
-    template_name = 'tasks/create.html'
+    template_name = 'general/create.html'
+    template_label_name = _('Creating task')
+    url_name = 'tasks_create'
 
     def get(self, request, *args, **kwargs):
         creator = request.user
         form = TaskForm(
             initial={'creator': creator}
         )
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {
+            'form': form,
+            'model': 'task',
+            'template_label_name': self.template_label_name,
+            'url_name': self.url_name
+        })
 
     def post(self, request, *args, **kwargs):
         form = TaskForm(request.POST)
@@ -87,14 +95,19 @@ class CreateTaskView(LoginRequiredMixin, View):
         return render(request, self.template_name, {'form': form})
 
 
-class UpdateTaskView(ModelMixin, SuccessUrlMixin, LoginRequiredMixin,
-                     SuccessMessageMixin, UpdateView):
+class UpdateTaskView(ModelMixin, ContextDataMixin, SuccessUrlMixin,
+                     LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    template_label_name = _('Editing task')
     form_class = TaskForm
-    template_name = 'tasks/update.html'
+    template_name = 'general/update.html'
+    url_name = 'tasks_update'
     success_message = _('Task has been updated')
 
 
-class DeleteTaskView(ModelMixin, SuccessUrlMixin, LoginRequiredMixin,
-                     CreatorCheckMixin, SuccessMessageMixin, DeleteView):
-    template_name = 'tasks/delete.html'
+class DeleteTaskView(ModelMixin, ContextDataMixin, SuccessUrlMixin,
+                     LoginRequiredMixin, CreatorCheckMixin,
+                     SuccessMessageMixin, DeleteView):
+    template_label_name = _('Deleting task')
+    template_name = 'general/delete.html'
+    url_name = 'tasks_delete'
     success_message = _('Task has been deleted')

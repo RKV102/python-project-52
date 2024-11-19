@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+
+{% block content %}
+    <h1 class="my-4">{{ template_label_name }}</h1>
+    <form action="{% url url_name %}" method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% if model_name == 'User' %}
+            {% translate "Sign up now" as create_button %}
+        {% else %}
+            {% translate "Create" as create_button %}
+        {% endif %}
+        {% bootstrap_button button_type="submit" content=create_button %}
+    </form>
+{% endblock %}

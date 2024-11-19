@@ -9,7 +9,8 @@ from .forms import UserCreationForm, UserChangeForm
 from django.utils.translation import gettext_lazy as _
 from task_manager.mixins import (LoginRequiredMixin, SuccessUrlMixin,
                                  DeletionProtectedMixin as
-                                 BaseDeletionProtectedMixin)
+                                 BaseDeletionProtectedMixin,
+                                 ContextDataMixin)
 
 
 class RedirectUrlMixin:
@@ -44,24 +45,31 @@ class IndexView(ModelMixin, ListView):
     context_object_name = 'users'
 
 
-class CreateUserView(ModelMixin, RedirectUrlMixin, SuccessUrlMixin,
-                     SuccessMessageMixin, CreateView):
+class CreateUserView(ModelMixin, ContextDataMixin, RedirectUrlMixin,
+                     SuccessUrlMixin, SuccessMessageMixin, CreateView):
+    template_label_name = _('Creating user')
+    url_name = 'users_create'
     form_class = UserCreationForm
-    template_name = 'users/create.html'
+    template_name = 'general/create.html'
     success_message = _('Registration was successful')
     redirect_url = 'login'
 
 
-class UpdateUserView(ModelMixin, RedirectUrlMixin, SuccessUrlMixin,
-                     LoginRequiredMixin, PermissionRequiredMixin,
-                     SuccessMessageMixin, UpdateView):
+class UpdateUserView(ModelMixin, ContextDataMixin, RedirectUrlMixin,
+                     SuccessUrlMixin, LoginRequiredMixin,
+                     PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
+    template_label_name = _('Editing user')
+    url_name = 'users_update'
     form_class = UserChangeForm
-    template_name = 'users/update.html'
+    template_name = 'general/update.html'
     success_message = _('User has been updated')
 
 
-class DeleteUserView(ModelMixin, RedirectUrlMixin, SuccessUrlMixin,
-                     LoginRequiredMixin, PermissionRequiredMixin,
-                     DeletionProtectedMixin, SuccessMessageMixin, DeleteView):
-    template_name = 'users/delete.html'
+class DeleteUserView(ModelMixin, ContextDataMixin, RedirectUrlMixin,
+                     SuccessUrlMixin, LoginRequiredMixin,
+                     PermissionRequiredMixin, DeletionProtectedMixin,
+                     SuccessMessageMixin, DeleteView):
+    template_label_name = _('Deleting user')
+    url_name = 'users_delete'
+    template_name = 'general/delete.html'
     success_message = _('User has been deleted')

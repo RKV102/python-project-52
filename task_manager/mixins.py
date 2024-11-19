@@ -49,3 +49,21 @@ class DeletionProtectedMixin(AccessMixin):
         if self.model is User:
             return model_item.task_executor.exists()
         return model_item.task_set.exists()
+
+
+class ContextDataMixin:
+    template_label_name = ''
+    url_name = ''
+    model = ''
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'create' not in self.url_name:
+            context['model_item'] = self.get_object()
+        context['template_label_name'] = self.template_label_name
+        context['url_name'] = self.url_name
+        if self.model:
+            context['model_name'] = self.model.__name__
+        else:
+            context['model_name'] = self.model
+        return context

@@ -3,8 +3,8 @@
 {% load i18n %}
 
 {% block content %}
-    <h1 class="my-4">{% translate "Editing user" %}</h1>
-    <form action="{% url 'users_update' pk=user.id %}" method="post">
+    <h1 class="my-4">{{ template_label_name }}</h1>
+    <form action="{% url url_name pk=model_item.id %}" method="post">
         {% csrf_token %}
         {% bootstrap_form form %}
         {% translate "Save" as update_button %}

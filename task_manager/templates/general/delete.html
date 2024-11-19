@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+
+{% block content %}
+    <h1 class="my-4">{{ template_label_name }}</h1>
+    <p>{% translate "Are you sure you want to delete" %} «{% if model_name == 'User' %}{{ model_item.first_name }} {{ model_item.last_name }}{% else %}{{ model_item.name }}{% endif %}»?</p>
+    <form action="{% url url_name pk=model_item.id %}" method="post">
+        {% csrf_token %}
+        {% translate "Yes, delete" as delete_button %}
+        {% bootstrap_button button_type="submit" content=delete_button button_class="btn-danger" %}
+    </form>
+{% endblock %}

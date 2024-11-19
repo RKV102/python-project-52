@@ -6,7 +6,8 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import gettext_lazy as _
 from task_manager.mixins import (LoginRequiredMixin, SuccessUrlMixin,
                                  DeletionProtectedMixin as
-                                 BaseDeletionProtectedMixin)
+                                 BaseDeletionProtectedMixin,
+                                 ContextDataMixin)
 
 
 class RedirectUrlMixin:
@@ -30,20 +31,28 @@ class IndexView(ModelMixin, LoginRequiredMixin, ListView):
     context_object_name = 'labels'
 
 
-class CreateLabelView(FormMixin, ModelMixin, RedirectUrlMixin, SuccessUrlMixin,
-                      LoginRequiredMixin, SuccessMessageMixin, CreateView):
-    template_name = 'labels/create.html'
+class CreateLabelView(FormMixin, ModelMixin, ContextDataMixin,
+                      RedirectUrlMixin, SuccessUrlMixin, LoginRequiredMixin,
+                      SuccessMessageMixin, CreateView):
+    template_label_name = _('Creating label')
+    url_name = 'labels_create'
+    template_name = 'general/create.html'
     success_message = _('Label creation was successful')
 
 
-class UpdateLabelView(FormMixin, ModelMixin, RedirectUrlMixin, SuccessUrlMixin,
-                      LoginRequiredMixin, SuccessMessageMixin, UpdateView):
-    template_name = 'labels/update.html'
+class UpdateLabelView(FormMixin, ModelMixin, ContextDataMixin,
+                      RedirectUrlMixin, SuccessUrlMixin, LoginRequiredMixin,
+                      SuccessMessageMixin, UpdateView):
+    template_label_name = _('Editing label')
+    url_name = 'labels_update'
+    template_name = 'general/update.html'
     success_message = _('Label has been updated')
 
 
-class DeleteLabelView(ModelMixin, RedirectUrlMixin, SuccessUrlMixin,
-                      LoginRequiredMixin, SuccessMessageMixin,
+class DeleteLabelView(ModelMixin, ContextDataMixin, RedirectUrlMixin,
+                      SuccessUrlMixin, LoginRequiredMixin, SuccessMessageMixin,
                       DeletionProtectedMixin, DeleteView):
-    template_name = 'labels/delete.html'
+    template_label_name = _('Deleting label')
+    url_name = 'labels_delete'
+    template_name = 'general/delete.html'
     success_message = _('Label has been deleted')
