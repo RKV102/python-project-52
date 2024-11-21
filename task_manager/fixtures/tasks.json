@@ -1,0 +1,26 @@
+[
+  {
+    "model": "tasks.task",
+    "pk": 1,
+    "fields": {
+      "name": "test_name_1",
+      "description": "test_description_1",
+      "status": 1,
+      "creator": 1,
+      "executor": 1,
+      "labels": [1, 2]
+    }
+  },
+  {
+    "model": "tasks.task",
+    "pk": 2,
+    "fields": {
+      "name": "test_name_2",
+      "description": "test_description_2",
+      "status": 2,
+      "creator": 2,
+      "executor": 2,
+      "labels": [2]
+    }
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+      "username": "test_username_1",
+      "first_name": "test_first_name_1",
+      "last_name": "test_last_name_1",
+      "password": "PsWd123*_1"
+    }
+  },
+  {
+    "model": "users.user",
+    "pk": 2,
+    "fields": {
+      "username": "test_username_2",
+      "first_name": "test_first_name_2",
+      "last_name": "test_last_name_2",
+      "password": "PsWd123*_2"
+    }
+  }
+]
