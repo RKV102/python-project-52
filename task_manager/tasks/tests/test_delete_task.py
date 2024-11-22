@@ -1,21 +1,20 @@
 from django.test import TestCase
 from django.urls import reverse
 from task_manager.tasks.models import Task
-from django.core.management import call_command
 from django.utils.translation import gettext_lazy as _
 from task_manager.utils import (get_message, get_users_login_data,
-                                get_fixture_data)
+                                get_fixture_data, create_users)
 
 
 class TestDeleteTask(TestCase):
-    user_login_data_1, user_login_data_2, *_ = get_users_login_data()
-    tasks_data = get_fixture_data('tasks.json')
+    fixtures = ['users.json', 'labels.json', 'statuses.json', 'tasks.json']
 
     def setUp(self):
-        call_command('create_users')
-        call_command('create_labels')
-        call_command('create_statuses')
-        call_command('create_tasks')
+        create_users()
+        self.user_login_data_1, self.user_login_data_2, *_ = (
+            get_users_login_data()
+        )
+        self.tasks_data = get_fixture_data('tasks.json')
         self.created_task = Task.objects.last()
 
     def test_delete_task_by_unauthorized_user(self):

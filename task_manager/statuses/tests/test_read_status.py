@@ -1,18 +1,17 @@
 from django.test import TestCase
 from django.urls import reverse
-from django.core.management import call_command
 from django.utils.translation import gettext_lazy as _
 from task_manager.utils import (get_message, get_fixture_data,
-                                get_users_login_data)
+                                get_users_login_data, create_users)
 
 
 class TestReadStatus(TestCase):
-    user_login_data = get_users_login_data()[0]
-    status_data = get_fixture_data('statuses.json')[0]
+    fixtures = ['users.json', 'statuses.json']
 
     def setUp(self):
-        call_command('create_users')
-        call_command('create_statuses')
+        create_users()
+        self.user_login_data = get_users_login_data()[0]
+        self.status_data = get_fixture_data('statuses.json')[0]
 
     def test_read_status_by_unauthorized_user(self):
         response = self.client.get(reverse('statuses'))

@@ -1,19 +1,18 @@
 from django.test import TestCase
 from django.urls import reverse
 from task_manager.labels.models import Label
-from django.core.management import call_command
 from django.utils.translation import gettext_lazy as _
 from task_manager.utils import (get_message, get_fixture_data,
-                                get_users_login_data)
+                                get_users_login_data, create_users)
 
 
 class TestDeleteLabel(TestCase):
-    user_login_data = get_users_login_data()[0]
-    label_data = get_fixture_data('labels.json')[0]
+    fixtures = ['users.json', 'labels.json', 'statuses.json']
 
     def setUp(self):
-        call_command('create_users')
-        call_command('create_labels')
+        create_users()
+        self.user_login_data = get_users_login_data()[0]
+        self.label_data = get_fixture_data('labels.json')[0]
         self.created_label = Label.objects.last()
 
     def test_delete_label_by_unauthorized_user(self):
@@ -43,12 +42,16 @@ class TestDeleteLabel(TestCase):
         self.assertNotContains(response, self.created_label.name)
 
     def test_delete_used_label(self):
-        call_command('create_statuses')
-        call_command('create_tasks')
         self.client.post(
             reverse('login'),
             data=self.user_login_data,
         )
+        tasks_create_data = get_fixture_data('tasks.json')
+        for task_create_data in tasks_create_data:
+            self.client.post(
+                reverse('tasks_create'),
+                data=task_create_data
+            )
         response = self.client.post(
             reverse('labels_delete', kwargs={'pk': self.created_label.pk}),
             follow=True

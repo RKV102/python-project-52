@@ -1,5 +1,6 @@
 from django.contrib.messages import get_messages
 from task_manager.settings import BASE_DIR
+from task_manager.users.models import User
 import json
 
 
@@ -42,3 +43,10 @@ def get_users_login_data():
         } for user_data in users_data
     ]
     return users_login_data
+
+
+def create_users():
+    users = User.objects.all()
+    for user in users:
+        user.set_password(user.password)
+        user.save()

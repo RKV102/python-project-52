@@ -1,13 +1,12 @@
 from django.test import TestCase
 from task_manager.users.models import User
 from django.urls import reverse
-from django.core.management import call_command
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import get_message, get_users_login_data
+from task_manager.utils import get_message, get_users_login_data, create_users
 
 
 class TestUpdateUser(TestCase):
-    user_login_data_1, user_login_data_2, *_ = get_users_login_data()
+    fixtures = ['users.json']
     user_update_data = {
         'username': 'test_username_new',
         'first_name': 'test_first_name_new',
@@ -17,8 +16,11 @@ class TestUpdateUser(TestCase):
     }
 
     def setUp(self):
-        call_command('create_users')
+        create_users()
         self.created_user = User.objects.last()
+        self.user_login_data_1, self.user_login_data_2, *_ = (
+            get_users_login_data()
+        )
 
     def test_update_user_by_unauthorized_user(self):
         response = self.client.post(

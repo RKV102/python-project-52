@@ -22,10 +22,12 @@ class Task(models.Model):
     labels = models.ManyToManyField(Label, verbose_name=_('Labels'),
                                     blank=True)
     updated_at = models.DateTimeField(auto_now=True,
-                                      verbose_name=_('Updated at')
+                                      verbose_name=_('Updated at'),
+                                      null=True
                                       )
     created_at = models.DateTimeField(auto_now_add=True,
-                                      verbose_name=_('Created at')
+                                      verbose_name=_('Created at'),
+                                      null=True
                                       )
 
     class Meta:

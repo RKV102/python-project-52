@@ -1,20 +1,19 @@
 from django.test import TestCase
 from django.urls import reverse
 from task_manager.labels.models import Label
-from django.core.management import call_command
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import get_message, get_users_login_data
+from task_manager.utils import get_message, get_users_login_data, create_users
 
 
 class TestUpdateLabel(TestCase):
-    user_login_data = get_users_login_data()[0]
-    label_update_data = {
-        'name': 'test_label_new',
-    }
+    fixtures = ['users.json', 'labels.json']
 
     def setUp(self):
-        call_command('create_users')
-        call_command('create_labels')
+        create_users()
+        self.user_login_data = get_users_login_data()[0]
+        self.label_update_data = {
+            'name': 'test_label_new',
+        }
         self.created_label = Label.objects.last()
 
     def test_update_label_by_unauthorized_user(self):
