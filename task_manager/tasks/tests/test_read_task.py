@@ -1,8 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
+from task_manager.tasks.models import Task
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import (get_message, get_users_login_data,
-                                get_fixture_data, create_users)
+from task_manager.utils import get_message, create_users
 
 
 class TestReadTask(TestCase):
@@ -10,9 +10,12 @@ class TestReadTask(TestCase):
 
     def setUp(self):
         create_users()
-        self.user_login_data = get_users_login_data()[0]
-        self.task_data = get_fixture_data('tasks.json')[0]
-        self.task_create_data = get_fixture_data('tasks.json')[0]
+        self.task = Task.objects.last()
+        self.user = self.task.creator
+        self.user_login_data = {
+            'username': self.user.username,
+            'password': 'PsWd123*'
+        }
 
     def test_read_task_by_unauthorized_user(self):
         response = self.client.get(reverse('tasks'))
@@ -27,4 +30,4 @@ class TestReadTask(TestCase):
             data=self.user_login_data,
         )
         response = self.client.get(reverse('tasks'))
-        self.assertContains(response, self.task_data['name'])
+        self.assertContains(response, self.task.name)

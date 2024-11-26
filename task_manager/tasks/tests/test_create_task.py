@@ -1,17 +1,28 @@
 from django.test import TestCase
 from django.urls import reverse
+from task_manager.users.models import User
+from task_manager.statuses.models import Status
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import (get_message, get_users_login_data,
-                                get_fixture_data, create_users)
+from task_manager.utils import get_message, create_users
 
 
 class TestCreateTask(TestCase):
-    fixtures = ['users.json', 'labels.json', 'statuses.json']
+    fixtures = ['users.json', 'statuses.json']
 
     def setUp(self):
         create_users()
-        self.user_login_data = get_users_login_data()[0]
-        self.task_create_data = get_fixture_data('tasks.json')[0]
+        self.user = User.objects.last()
+        self.status = Status.objects.last()
+        self.user_login_data = {
+            'username': self.user.username,
+            'password': 'PsWd123*'
+        }
+        self.task_create_data = {
+            'name': 'test_name',
+            'status': self.status.id,
+            'creator': self.user.id,
+            'executor': self.user.id
+        }
 
     def test_create_task_by_unauthorized_user(self):
         response = self.client.post(

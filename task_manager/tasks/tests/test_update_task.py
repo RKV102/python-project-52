@@ -2,8 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from task_manager.tasks.models import Task
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import (get_message, get_users_login_data,
-                                get_fixture_data, create_users)
+from task_manager.utils import get_message, create_users
 
 
 class TestUpdateTask(TestCase):
@@ -11,19 +10,22 @@ class TestUpdateTask(TestCase):
 
     def setUp(self):
         create_users()
-        self.user_login_data = get_users_login_data()[0]
-        self.tasks_data = get_fixture_data('tasks.json')
-        self.created_task = Task.objects.last()
+        self.task = Task.objects.last()
+        self.user = self.task.creator
+        self.user_login_data = {
+            'username': self.user.username,
+            'password': 'PsWd123*'
+        }
         self.task_update_data = {
             'name': 'test_task_new',
-            'status': self.created_task.status.id,
-            'creator': self.created_task.creator.id,
-            'executor': self.created_task.executor.id
+            'status': self.task.status.id,
+            'creator': self.task.creator.id,
+            'executor': self.task.executor.id
         }
 
     def test_update_task_by_unauthorized_user(self):
         response = self.client.post(
-            reverse('tasks_update', kwargs={'pk': self.created_task.pk}),
+            reverse('tasks_update', kwargs={'pk': self.task.pk}),
             data=self.task_update_data,
             follow=True
         )
@@ -38,7 +40,7 @@ class TestUpdateTask(TestCase):
             data=self.user_login_data,
         )
         response = self.client.post(
-            reverse('tasks_update', kwargs={'pk': self.created_task.pk}),
+            reverse('tasks_update', kwargs={'pk': self.task.pk}),
             data=self.task_update_data,
             follow=True
         )

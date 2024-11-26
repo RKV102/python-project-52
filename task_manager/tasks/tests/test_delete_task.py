@@ -2,8 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from task_manager.tasks.models import Task
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import (get_message, get_users_login_data,
-                                get_fixture_data, create_users)
+from task_manager.utils import get_message, create_users
 
 
 class TestDeleteTask(TestCase):
@@ -11,15 +10,23 @@ class TestDeleteTask(TestCase):
 
     def setUp(self):
         create_users()
-        self.user_login_data_1, self.user_login_data_2, *_ = (
-            get_users_login_data()
-        )
-        self.tasks_data = get_fixture_data('tasks.json')
-        self.created_task = Task.objects.last()
+        self.task = Task.objects.last()
+        self.user = self.task.creator
+        self.user_login_data = {
+            'username': self.user.username,
+            'password': 'PsWd123*'
+        }
+        self.another_user_create_data = {
+            'username': 'test_username',
+            'first_name': 'test_first_name',
+            'last_name': 'test_last_name',
+            'password1': 'PsWd123*',
+            'password2': 'PsWd123*'
+        }
 
     def test_delete_task_by_unauthorized_user(self):
         response = self.client.post(
-            reverse('tasks_delete', kwargs={'pk': self.created_task.pk}),
+            reverse('tasks_delete', kwargs={'pk': self.task.pk}),
             follow=True
         )
         self.assertEqual(
@@ -30,10 +37,10 @@ class TestDeleteTask(TestCase):
     def test_delete_task_by_authorized_user(self):
         self.client.post(
             reverse('login'),
-            data=self.user_login_data_2,
+            data=self.user_login_data,
         )
         response = self.client.post(
-            reverse('tasks_delete', kwargs={'pk': self.created_task.pk}),
+            reverse('tasks_delete', kwargs={'pk': self.task.pk}),
             follow=True
         )
         self.assertEqual(
@@ -41,15 +48,24 @@ class TestDeleteTask(TestCase):
             _("Task has been deleted")
         )
         response = self.client.get(reverse('tasks'))
-        self.assertNotContains(response, self.created_task.name)
+        self.assertNotContains(response, self.task.name)
 
     def test_delete_task_by_another_user(self):
+        another_user_login_data = {
+            'username': self.another_user_create_data['username'],
+            'password': 'PsWd123*'
+        }
+        self.client.post(
+            reverse('users_create'),
+            data=self.another_user_create_data,
+            follow=True
+        )
         self.client.post(
             reverse('login'),
-            data=self.user_login_data_1,
+            data=another_user_login_data,
         )
         response = self.client.post(
-            reverse('tasks_delete', kwargs={'pk': self.created_task.pk}),
+            reverse('tasks_delete', kwargs={'pk': self.task.pk}),
             follow=True
         )
         self.assertEqual(

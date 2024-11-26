@@ -2,29 +2,30 @@ from django.test import TestCase
 from task_manager.users.models import User
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import get_message, get_users_login_data, create_users
+from task_manager.utils import get_message, create_users
 
 
 class TestUpdateUser(TestCase):
     fixtures = ['users.json']
-    user_update_data = {
-        'username': 'test_username_new',
-        'first_name': 'test_first_name_new',
-        'last_name': 'test_last_name_new',
-        'password1': 'PsWd123*NeW',
-        'password2': 'PsWd123*NeW'
-    }
 
     def setUp(self):
         create_users()
-        self.created_user = User.objects.last()
-        self.user_login_data_1, self.user_login_data_2, *_ = (
-            get_users_login_data()
-        )
+        self.user_1, self.user_2, *_ = User.objects.order_by('-id')
+        self.user_login_data = {
+            'username': self.user_1.username,
+            'password': 'PsWd123*'
+        }
+        self.user_update_data = {
+            'username': 'test_username_new',
+            'first_name': 'test_first_name_new',
+            'last_name': 'test_last_name_new',
+            'password1': 'PsWd123*NeW',
+            'password2': 'PsWd123*NeW'
+        }
 
     def test_update_user_by_unauthorized_user(self):
         response = self.client.post(
-            reverse('users_update', kwargs={'pk': self.created_user.pk}),
+            reverse('users_update', kwargs={'pk': self.user_1.pk}),
             data=self.user_update_data,
             follow=True
         )
@@ -36,11 +37,11 @@ class TestUpdateUser(TestCase):
     def test_update_user_by_authorized_user(self):
         response = self.client.post(
             reverse('login'),
-            data=self.user_login_data_2,
+            data=self.user_login_data,
         )
         self.assertTrue(response.wsgi_request.user.is_authenticated)
         response = self.client.post(
-            reverse('users_update', kwargs={'pk': self.created_user.pk}),
+            reverse('users_update', kwargs={'pk': self.user_1.pk}),
             data=self.user_update_data,
             follow=True
         )
@@ -52,13 +53,12 @@ class TestUpdateUser(TestCase):
         self.assertContains(response, self.user_update_data['username'])
 
     def test_update_user_by_another_user(self):
-        created_user_2, created_user_1 = User.objects.order_by('-id')[:2]
         self.client.post(
             reverse('login'),
-            data=self.user_login_data_2,
+            data=self.user_login_data,
         )
         response = self.client.post(
-            reverse('users_update', kwargs={'pk': created_user_1.pk}),
+            reverse('users_update', kwargs={'pk': self.user_2.pk}),
             data=self.user_update_data,
             follow=True
         )

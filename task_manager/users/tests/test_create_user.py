@@ -1,12 +1,18 @@
 from django.test import TestCase
 from task_manager.users.models import User
 from django.urls import reverse
-from task_manager.utils import get_users_create_data, get_message
+from task_manager.utils import get_message
 from django.utils.translation import gettext_lazy as _
 
 
 class TestCreateUser(TestCase):
-    user_create_data = get_users_create_data()[0]
+    user_create_data = {
+        'username': 'test_username',
+        'first_name': 'test_first_name',
+        'last_name': 'test_last_name',
+        'password1': 'PsWd123*',
+        'password2': 'PsWd123*'
+    }
 
     def test_create_user(self):
         users_count = User.objects.count()

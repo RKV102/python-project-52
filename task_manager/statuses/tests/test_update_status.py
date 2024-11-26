@@ -1,8 +1,9 @@
 from django.test import TestCase
 from django.urls import reverse
+from task_manager.users.models import User
 from task_manager.statuses.models import Status
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import get_message, get_users_login_data, create_users
+from task_manager.utils import get_message, create_users
 
 
 class TestUpdateStatus(TestCase):
@@ -10,15 +11,17 @@ class TestUpdateStatus(TestCase):
 
     def setUp(self):
         create_users()
-        self.user_login_data = get_users_login_data()[0]
-        self.status_update_data = {
-            'name': 'test_status_new',
+        self.user = User.objects.last()
+        self.user_login_data = {
+            'username': self.user.username,
+            'password': 'PsWd123*'
         }
-        self.created_status = Status.objects.last()
+        self.status = Status.objects.last()
+        self.status_update_data = {'name': 'test_status_new'}
 
     def test_update_status_by_unauthorized_user(self):
         response = self.client.post(
-            reverse('statuses_update', kwargs={'pk': self.created_status.pk}),
+            reverse('statuses_update', kwargs={'pk': self.status.pk}),
             data=self.status_update_data,
             follow=True
         )
@@ -33,7 +36,7 @@ class TestUpdateStatus(TestCase):
             data=self.user_login_data,
         )
         response = self.client.post(
-            reverse('statuses_update', kwargs={'pk': self.created_status.pk}),
+            reverse('statuses_update', kwargs={'pk': self.status.pk}),
             data=self.status_update_data,
             follow=True
         )

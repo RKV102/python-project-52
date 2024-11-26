@@ -1,9 +1,10 @@
 from django.test import TestCase
 from django.urls import reverse
+from task_manager.users.models import User
 from task_manager.labels.models import Label
+from task_manager.statuses.models import Status
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import (get_message, get_fixture_data,
-                                get_users_login_data, create_users)
+from task_manager.utils import get_message, create_users
 
 
 class TestDeleteLabel(TestCase):
@@ -11,13 +12,25 @@ class TestDeleteLabel(TestCase):
 
     def setUp(self):
         create_users()
-        self.user_login_data = get_users_login_data()[0]
-        self.label_data = get_fixture_data('labels.json')[0]
-        self.created_label = Label.objects.last()
+        self.user = User.objects.last()
+        self.user_login_data = {
+            'username': self.user.username,
+            'password': 'PsWd123*'
+        }
+        self.label = Label.objects.last()
+        self.status = Status.objects.last()
+        self.task_create_data = {
+            'id': 1,
+            'name': 'test_name_1',
+            'status': self.status.id,
+            'creator': self.user.id,
+            'executor': self.user.id,
+            'labels': [self.label.id]
+        }
 
     def test_delete_label_by_unauthorized_user(self):
         response = self.client.post(
-            reverse('labels_delete', kwargs={'pk': self.created_label.pk}),
+            reverse('labels_delete', kwargs={'pk': self.label.pk}),
             follow=True
         )
         self.assertEqual(
@@ -31,7 +44,7 @@ class TestDeleteLabel(TestCase):
             data=self.user_login_data,
         )
         response = self.client.post(
-            reverse('labels_delete', kwargs={'pk': self.created_label.pk}),
+            reverse('labels_delete', kwargs={'pk': self.label.pk}),
             follow=True
         )
         self.assertEqual(
@@ -39,21 +52,19 @@ class TestDeleteLabel(TestCase):
             _("Label has been deleted")
         )
         response = self.client.get(reverse('labels'))
-        self.assertNotContains(response, self.created_label.name)
+        self.assertNotContains(response, self.label.name)
 
     def test_delete_used_label(self):
         self.client.post(
             reverse('login'),
             data=self.user_login_data,
         )
-        tasks_create_data = get_fixture_data('tasks.json')
-        for task_create_data in tasks_create_data:
-            self.client.post(
-                reverse('tasks_create'),
-                data=task_create_data
-            )
+        self.client.post(
+            reverse('tasks_create'),
+            data=self.task_create_data
+        )
         response = self.client.post(
-            reverse('labels_delete', kwargs={'pk': self.created_label.pk}),
+            reverse('labels_delete', kwargs={'pk': self.label.pk}),
             follow=True
         )
         self.assertEqual(
