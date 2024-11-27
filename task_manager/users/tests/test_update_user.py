@@ -2,7 +2,7 @@ from django.test import TestCase
 from task_manager.users.models import User
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import get_message, create_users
+from task_manager.utils import get_message, create_users, get_user_login_data
 
 
 class TestUpdateUser(TestCase):
@@ -11,10 +11,7 @@ class TestUpdateUser(TestCase):
     def setUp(self):
         create_users()
         self.user_1, self.user_2, *_ = User.objects.order_by('-id')
-        self.user_login_data = {
-            'username': self.user_1.username,
-            'password': 'PsWd123*'
-        }
+        self.user_login_data = get_user_login_data()
         self.user_update_data = {
             'username': 'test_username_new',
             'first_name': 'test_first_name_new',
@@ -35,11 +32,7 @@ class TestUpdateUser(TestCase):
         )
 
     def test_update_user_by_authorized_user(self):
-        response = self.client.post(
-            reverse('login'),
-            data=self.user_login_data,
-        )
-        self.assertTrue(response.wsgi_request.user.is_authenticated)
+        self.client.login(**self.user_login_data)
         response = self.client.post(
             reverse('users_update', kwargs={'pk': self.user_1.pk}),
             data=self.user_update_data,
@@ -53,10 +46,7 @@ class TestUpdateUser(TestCase):
         self.assertContains(response, self.user_update_data['username'])
 
     def test_update_user_by_another_user(self):
-        self.client.post(
-            reverse('login'),
-            data=self.user_login_data,
-        )
+        self.client.login(**self.user_login_data)
         response = self.client.post(
             reverse('users_update', kwargs={'pk': self.user_2.pk}),
             data=self.user_update_data,

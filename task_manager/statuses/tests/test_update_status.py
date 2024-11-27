@@ -3,7 +3,7 @@ from django.urls import reverse
 from task_manager.users.models import User
 from task_manager.statuses.models import Status
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import get_message, create_users
+from task_manager.utils import get_message, create_users, get_user_login_data
 
 
 class TestUpdateStatus(TestCase):
@@ -12,10 +12,7 @@ class TestUpdateStatus(TestCase):
     def setUp(self):
         create_users()
         self.user = User.objects.last()
-        self.user_login_data = {
-            'username': self.user.username,
-            'password': 'PsWd123*'
-        }
+        self.user_login_data = get_user_login_data()
         self.status = Status.objects.last()
         self.status_update_data = {'name': 'test_status_new'}
 
@@ -31,10 +28,7 @@ class TestUpdateStatus(TestCase):
         )
 
     def test_update_status_by_authorized_user(self):
-        self.client.post(
-            reverse('login'),
-            data=self.user_login_data,
-        )
+        self.client.login(**self.user_login_data)
         response = self.client.post(
             reverse('statuses_update', kwargs={'pk': self.status.pk}),
             data=self.status_update_data,

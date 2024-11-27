@@ -3,7 +3,7 @@ from django.urls import reverse
 from task_manager.users.models import User
 from task_manager.statuses.models import Status
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import get_message, create_users
+from task_manager.utils import get_message, create_users, get_user_login_data
 
 
 class TestCreateTask(TestCase):
@@ -13,10 +13,7 @@ class TestCreateTask(TestCase):
         create_users()
         self.user = User.objects.last()
         self.status = Status.objects.last()
-        self.user_login_data = {
-            'username': self.user.username,
-            'password': 'PsWd123*'
-        }
+        self.user_login_data = get_user_login_data()
         self.task_create_data = {
             'name': 'test_name',
             'status': self.status.id,
@@ -36,10 +33,7 @@ class TestCreateTask(TestCase):
         )
 
     def test_create_task_by_authorized_user(self):
-        self.client.post(
-            reverse('login'),
-            data=self.user_login_data,
-        )
+        self.client.login(**self.user_login_data)
         response = self.client.post(
             reverse('tasks_create'),
             data=self.task_create_data,
