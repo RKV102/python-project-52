@@ -3,7 +3,7 @@ from django.urls import reverse
 from task_manager.users.models import User
 from task_manager.statuses.models import Status
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import get_message, create_users
+from task_manager.utils import get_message, create_users, get_content
 
 
 class TestReadStatus(TestCase):
@@ -12,10 +12,7 @@ class TestReadStatus(TestCase):
     def setUp(self):
         create_users()
         self.user = User.objects.last()
-        self.user_login_data = {
-            'username': self.user.username,
-            'password': 'PsWd123*'
-        }
+        self.user_login_data = get_content('user_login.json')
         self.status = Status.objects.last()
 
     def test_read_status_by_unauthorized_user(self):
@@ -26,9 +23,6 @@ class TestReadStatus(TestCase):
         )
 
     def test_read_status_by_authorized_user(self):
-        self.client.post(
-            reverse('login'),
-            data=self.user_login_data,
-        )
+        self.client.login(**self.user_login_data)
         response = self.client.get(reverse('statuses'))
         self.assertContains(response, self.status.name)

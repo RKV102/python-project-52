@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from task_manager.tasks.models import Task
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import get_message, create_users
+from task_manager.utils import get_message, create_users, get_content
 
 
 class TestUpdateTask(TestCase):
@@ -11,11 +11,7 @@ class TestUpdateTask(TestCase):
     def setUp(self):
         create_users()
         self.task = Task.objects.last()
-        self.user = self.task.creator
-        self.user_login_data = {
-            'username': self.user.username,
-            'password': 'PsWd123*'
-        }
+        self.user_login_data = get_content('user_login.json')
         self.task_update_data = {
             'name': 'test_task_new',
             'status': self.task.status.id,

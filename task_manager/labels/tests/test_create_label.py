@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from task_manager.users.models import User
 from django.utils.translation import gettext_lazy as _
-from task_manager.utils import get_message, create_users
+from task_manager.utils import get_message, create_users, get_content
 
 
 class TestCreateLabels(TestCase):
@@ -11,10 +11,7 @@ class TestCreateLabels(TestCase):
     def setUp(self):
         create_users()
         self.user = User.objects.last()
-        self.user_login_data = {
-            'username': self.user.username,
-            'password': 'PsWd123*'
-        }
+        self.user_login_data = get_content('user_login.json')
         self.label_create_data = {'name': 'test_label_name'}
 
     def test_create_label_by_unauthorized_user(self):
@@ -29,10 +26,7 @@ class TestCreateLabels(TestCase):
         )
 
     def test_create_label_by_authorized_user(self):
-        self.client.post(
-            reverse('login'),
-            data=self.user_login_data,
-        )
+        self.client.login(**self.user_login_data)
         response = self.client.post(
             reverse('labels_create'),
             data=self.label_create_data,
